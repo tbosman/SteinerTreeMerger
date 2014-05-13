@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.steiner.graph</groupId>
+	<artifactId>steinertreemerger</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>Steiner tree heuristic using Tree decomposition</name>
+	<repositories>
+		<repository>
+			<id>lhogie.i3s.maven.repo</id>
+			<name>Luc Hogie Maven repository</name>
+			<url>http://www.i3s.unice.fr/~hogie/maven_repository/</url>
+		</repository>
+	</repositories>
+	<dependencies>
+		<dependency>
+			<groupId>grph</groupId>
+			<artifactId>grph</artifactId>
+			<version>1.4.17</version>
+
+		</dependency>
+	</dependencies>
+
+</project>
