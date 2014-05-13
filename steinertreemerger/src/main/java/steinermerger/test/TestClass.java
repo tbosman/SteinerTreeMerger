@@ -1,4 +1,4 @@
-package steinertreemerger.test;
+package steinermerger.test;
 
 import grph.gui.GraphstreamBasedRenderer;
 
