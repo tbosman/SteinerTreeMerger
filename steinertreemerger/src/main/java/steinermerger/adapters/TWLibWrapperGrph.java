@@ -49,7 +49,7 @@ public class TWLibWrapperGrph implements GraphInput{
 		terminals = new HashSet<NVertex<InputData>>();
 
 		for(int v : in.getVertices().toIntArray()) {
-			NVertex<InputData> newVertex = new ListVertex<InputData>(new InputData(v ,""+(v)));
+			NVertex<InputData> newVertex = new ListVertex<InputData>(new InputData(vertices.size() ,""+(v)));
 			vertices.put(""+(v), newVertex);
 			g.addVertex(newVertex);
 		}
@@ -58,7 +58,7 @@ public class TWLibWrapperGrph implements GraphInput{
 			int v1 = in.getOneVertex(e);
 			int v2 = in.getTheOtherVertex(e, v1);
 			int weight = in.getEdgeWeight(e);
-			
+			addEdge(v1, v2, weight);
 		}
 		for(int t : in.getTargetNodes().toIntArray()) {
 			terminals.add(vertices.get(""+t));

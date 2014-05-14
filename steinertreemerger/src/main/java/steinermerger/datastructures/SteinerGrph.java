@@ -67,4 +67,7 @@ public class SteinerGrph extends WeightedGrph {
 		return sphAlgorithm.compute(this, root);
 	}
 	
+	public String toString() {
+		return super.toString()+", "+getTargetNodes().size()+" targets";
+	}
 }

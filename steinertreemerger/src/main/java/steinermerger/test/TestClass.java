@@ -17,7 +17,7 @@ import steinermerger.util.GrphTools;
 import toools.set.IntSet;
 
 public class TestClass {
-	String fileName = "C:\\Users\\tbosman\\Dropbox\\School\\Scriptie\\Code\\BenchMarks\\c\\c01.stp";
+	String fileName = "C:\\Users\\tbosman\\Dropbox\\School\\Scriptie\\Code\\BenchMarks\\C\\c13.stp";
 	TestClass() throws IOException{
 		STPReader in;
 		SteinerGrph g;
@@ -29,36 +29,46 @@ public class TestClass {
 		System.out.println(g);
 		IntSet prunedSet = g.pruneSteinerLeafs();
 		System.out.println("Problem after pruning: ");
-		System.out.println(g);
+		System.out.println(g+" length: "+totalLength(g));
 		g.displayGraphstream_0_4_2();
 
 		//		System.out.println("Pruned from input graph: "+pruned);
-		/*
+		
 		WeightedGrph t = g.computeMinimumSpanningTree();
 		GrphTools.copyProperties(g,t);
-		t.displayGraphstream_0_4_2();
-		 */
+		
 		int root = 1;
 		root = g.getTargetNodes().getGreatest();
 		int[] targetArray = g.getTargetNodes().toIntArray();
-
+		
+		int step = 3; 
+		int maxIt = 25;
 		SteinerGrph sphUnion = new SteinerGrph();
-		for(int i=0; i< targetArray.length; i++) {
+		for(int i=0; i< targetArray.length && i <step*maxIt ; i=i+step) {
 			SteinerGrph sph = constructSPH(g, targetArray[i]);
 			sphUnion.addSubgraph(sph);
+			System.out.println("Iteration "+i);
 			System.out.println("Graph size of union: ");
 			System.out.println(sphUnion);
 		}
+		System.out.println("Adding minimum spanning tree to union: ");
+		sphUnion.addSubgraph(t);
+		sphUnion.pruneSteinerLeafs();
+		System.out.println(sphUnion);
+		/*
 		System.out.println("Minimum spanning Tree reduction: ");
 		WeightedGrph mst = sphUnion.computeMinimumSpanningTree();
 		GrphTools.copyProperties(sphUnion, mst);
 		sphUnion = new SteinerGrph(mst);
 		
 		System.out.println(sphUnion);
-		sphUnion.pruneSteinerLeafs();
+		System.out.println(sphUnion.pruneSteinerLeafs());
 		System.out.println(sphUnion);
+		*/
 		sphUnion.displayGraphstream_0_4_2();
 		
+		System.out.println("Original graph: ");
+		System.out.println(g+" length: "+totalLength(g));
 		
 		System.out.println("Doing Tree decomp");
 		doTreeDP(sphUnion);
@@ -82,6 +92,13 @@ public class TestClass {
 		return sphTree;
 	}
 	
+	public int totalLength(WeightedGrph g) {
+		int length = 0; 
+		for(int e : g.getEdges().toIntArray()) {
+			length += g.getEdgeWeight(e);
+		}
+		return length;
+	}
 	public void doTreeDP(SteinerGrph g) {
 		new TreeDecomposition().computeTreeDP(new TWLibWrapperGrph(g));
 	}

@@ -92,14 +92,15 @@ public class WeightedGrph extends InMemoryGrph{
 	 * Takes union of this and input graph
 	 * Assumes that both graphs subgraphs from the same graph
 	 * i.e. elements equal vertex/edge id iff they refer to the same element
-	 * Overwrites all properties in this from elements that are present in input graph
 	 * @param g
 	 * @return
 	 */
-	public WeightedGrph addSubgraph(Grph g) {
+	public WeightedGrph addSubgraph(WeightedGrph g) {
+		
 		for(int v: g.getVertices().toIntArray()) {
 			if(!this.containsVertex(v)) {
 				addVertex(v);
+				GrphTools.copyVertexProperties(v, g, this);
 			}
 		}
 		for(int e: g.getEdges().toIntArray()) {
@@ -107,9 +108,11 @@ public class WeightedGrph extends InMemoryGrph{
 				int v = g.getOneVertex(e);
 				int w = g.getTheOtherVertex(e, v);
 				this.addSimpleEdge(v, e, w, false);
+				GrphTools.copyEdgeProperties(e, g, this);
+				this.setEdgeWeight(e, g.getEdgeWeight(e));
 			}
 		}
-		GrphTools.copyProperties(g, this);
+		//GrphTools.copyProperties(g, this);
 		return this;
 	}
 	//Overriding methods to circumvent bugs/problems in Grph library

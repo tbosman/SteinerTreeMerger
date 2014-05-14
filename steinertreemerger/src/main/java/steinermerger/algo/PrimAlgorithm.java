@@ -23,7 +23,7 @@ public class PrimAlgorithm extends GrphAlgorithm<WeightedGrph>{
 	public WeightedGrph compute(Grph g, int root) {
 		WeightedGrph t = new WeightedGrph();
 		t.addVertex(root);
-		for(int i=2; i<g.getNumberOfVertices(); i++) {
+		for(int i=1; i<g.getNumberOfVertices(); i++) {
 			int minEdge = 0; 
 			int minLength = Integer.MAX_VALUE;
 			int oldNode = 0;

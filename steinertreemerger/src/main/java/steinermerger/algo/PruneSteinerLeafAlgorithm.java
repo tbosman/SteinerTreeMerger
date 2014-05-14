@@ -29,13 +29,18 @@ public class PruneSteinerLeafAlgorithm extends SteinerGrphAlgorithm<IntSet> {
 	 * @return set of pruned vertices
 	 */
 	public IntSet compute(Grph g) {
-		IntSet leafs = g.getVerticesOfDegree(1);
 		IntSet pruned = new DefaultIntSet();
-		for(int v : leafs.toIntArray()) {
+		IntSet leafs = g.getVerticesOfDegree(1);
+		int lastPrunedSize = -1;//to check wether any leafs were pruned in last ieration
+		while(pruned.size() > lastPrunedSize) {
+			lastPrunedSize = pruned.size(); 
+			for(int v : leafs.toIntArray()) {
 			if(!isTarget(v)	) {
 				g.removeVertex(v);
 				pruned.add(v);
 			}
+		}
+			leafs = g.getVerticesOfDegree(1);
 		}
 		return pruned;
 	}
