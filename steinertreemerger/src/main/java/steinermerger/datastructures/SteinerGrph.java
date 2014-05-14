@@ -1,6 +1,8 @@
 package steinermerger.datastructures;
 
+import grph.Grph;
 import grph.properties.NumericalProperty;
+import steinermerger.algo.PruneSteinerLeafAlgorithm;
 import steinermerger.algo.SPHAlgorithm;
 import steinermerger.algo.SteinerGrphAlgorithm;
 import steinermerger.util.GrphTools;
@@ -15,25 +17,24 @@ import toools.set.IntSet;
 public class SteinerGrph extends WeightedGrph {
 
 	public transient final SPHAlgorithm sphAlgorithm = new SPHAlgorithm(this);
-	
+	protected transient final SteinerGrphAlgorithm<IntSet> pruneSteinerLeafAlgorithm  = new PruneSteinerLeafAlgorithm(this);
+
 	public SteinerGrph() {
 		super();
 	}
-	/**
-	 * copy constructor	
-	 * @param gIn steinerGraph to clone data from 
-	 */
-	public SteinerGrph(SteinerGrph gIn) {
-		addVertices(gIn.getVertices());
-		for(int e : gIn.getEdges().toIntArray()) {
-			int v = gIn.getOneVertex(e);
-			int w = gIn.getTheOtherVertex(e, v);
-			addSimpleEdge(v, e, w, false);
-			
-		}
-		GrphTools.copyProperties(gIn, this);
-	}
 	
+
+	
+	/**Copy constructor, clone topology and properties
+	 * @param gIn
+	 */
+	public SteinerGrph(Grph gIn) {
+		super(gIn);
+	}
+
+
+
+	//Graph property methods
 	public boolean isTargetNode(int v) {
 		return getVertexShapeProperty().getValue(v) == 1; 
 	}
@@ -56,7 +57,12 @@ public class SteinerGrph extends WeightedGrph {
 		}
 		
 	}
+	//Graph mutation
+	public IntSet pruneSteinerLeafs() {
+		return pruneSteinerLeafAlgorithm.compute(this);
+	}
 
+	//Algorithms
 	public SteinerGrph computeSPHGraph(int root) {
 		return sphAlgorithm.compute(this, root);
 	}

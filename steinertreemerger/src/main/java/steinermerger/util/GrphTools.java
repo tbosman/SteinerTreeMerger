@@ -7,6 +7,7 @@ import grph.properties.Property;
 public class GrphTools {
 
 
+	
 
 	public static void copyProperties(Grph a, Grph b) {
 		//copy vertex shape and color properties

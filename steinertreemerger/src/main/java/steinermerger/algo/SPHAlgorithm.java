@@ -22,26 +22,25 @@ public class SPHAlgorithm extends SteinerGrphAlgorithm<SteinerGrph> {
 		super(g);
 	}
 
-	public SteinerGrph compute(Grph g) {
-		return null;
-		//TODO convert to steiner graph
-	}
 	
-	public SteinerGrph compute(SteinerGrph gIn, int root) {
-		// TODO Implement ALGO
+	
+	public SteinerGrph compute(Grph gIn, int root) {
 		this.root = root;
 		//create a new graph to store progress by updating edges used in tree to zero edge weight
 		this.g = new SteinerGrph(gIn);
-		//g.displayGraphstream_0_4_2();//#DBG
-		IntSet targets = gIn.getTargetNodes();
-		if(targets.contains(root)) targets.remove(root);
+		//TODO, ensure weights and targets from corresponding fields in algo
+
+		IntSet targets = getTargetNodes(g);
 		SteinerGrph s = new SteinerGrph(); 
+
 		//INIT: add root vertex and calculate shortest path to first target vertex
 		s.addVertex(root); 
+		if(targets.contains(root)) targets.remove(root);
+
 		if(g.isTargetNode(root))
 			s.setTargetNode(root, true);
 		
-		s.displayGraphstream_0_4_2();
+//		s.displayGraphstream_0_4_2();
 		while(!targets.isEmpty()) {
 			growTree(s, targets); 
 		}
@@ -93,7 +92,7 @@ public class SPHAlgorithm extends SteinerGrphAlgorithm<SteinerGrph> {
 		}
 	}
 
-	public SteinerGrph compute(SteinerGrph g) {
+	public SteinerGrph compute(Grph g) {
 		return compute(g, g.getVertices().pickRandomElement(new java.util.Random()));
 	}
 
