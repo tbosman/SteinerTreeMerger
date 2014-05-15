@@ -2,8 +2,10 @@ package steinermerger.datastructures;
 
 import grph.Grph;
 import grph.properties.NumericalProperty;
+import steinermerger.algo.ContractSteinerNodesOfDegree2Algorithm;
 import steinermerger.algo.PruneSteinerLeafAlgorithm;
 import steinermerger.algo.SPHAlgorithm;
+import steinermerger.algo.SPReductionAlgorithm;
 import steinermerger.algo.SteinerGrphAlgorithm;
 import steinermerger.util.GrphTools;
 import toools.set.IntSet;
@@ -18,13 +20,15 @@ public class SteinerGrph extends WeightedGrph {
 
 	public transient final SPHAlgorithm sphAlgorithm = new SPHAlgorithm(this);
 	protected transient final SteinerGrphAlgorithm<IntSet> pruneSteinerLeafAlgorithm  = new PruneSteinerLeafAlgorithm(this);
+	protected transient final SteinerGrphAlgorithm<IntSet> contractSteinerNodesAlgorithm = new ContractSteinerNodesOfDegree2Algorithm(this); 
+	protected transient final SteinerGrphAlgorithm<IntSet> spReductionAlgorithm = new SPReductionAlgorithm(this);
 
 	public SteinerGrph() {
 		super();
 	}
-	
 
-	
+
+
 	/**Copy constructor, clone topology and properties
 	 * @param gIn
 	 */
@@ -38,7 +42,7 @@ public class SteinerGrph extends WeightedGrph {
 	public boolean isTargetNode(int v) {
 		return getVertexShapeProperty().getValue(v) == 1; 
 	}
-	
+
 	public IntSet getTargetNodes() {
 		return getVertexShapeProperty().findElementsWithValue(1, getVertices());
 	}
@@ -46,7 +50,7 @@ public class SteinerGrph extends WeightedGrph {
 	public NumericalProperty getTargetProperty() {
 		return getVertexShapeProperty();
 	}
-	
+
 	public void setTargetNode(int v, boolean target) {
 		if(target) {
 			getTargetProperty().setValue(v, 1);
@@ -55,7 +59,7 @@ public class SteinerGrph extends WeightedGrph {
 			getTargetProperty().setValue(v, 0);
 			getVertexColorProperty().setValue(v,0);
 		}
-		
+
 	}
 	//Graph mutation
 	public IntSet pruneSteinerLeafs() {
@@ -66,8 +70,26 @@ public class SteinerGrph extends WeightedGrph {
 	public SteinerGrph computeSPHGraph(int root) {
 		return sphAlgorithm.compute(this, root);
 	}
-	
+
 	public String toString() {
 		return super.toString()+", "+getTargetNodes().size()+" targets";
+	}
+
+	public IntSet contractDegree2() {
+		return contractSteinerNodesAlgorithm.compute(this);
+	}
+	
+	public IntSet spReduction() {
+		return spReductionAlgorithm.compute(this);
+	}
+	
+	/**
+	 * Calls all reduction technique on graph :
+	 * Removes degree 1 and contracts 2 steiner nodes
+	 */
+	public void reduceGraph() {
+		contractDegree2();
+		pruneSteinerLeafs();
+		spReduction();
 	}
 }

@@ -10,6 +10,7 @@ import grph.GrphAlgorithm;
 import grph.algo.search.SearchResult;
 
 /**
+ * Naive implementation
  * Construction heuristic for finding steiner tree 
  * Use shortest path heuristic: iteratively adds the closest target point to the tree
  * @author tbosman

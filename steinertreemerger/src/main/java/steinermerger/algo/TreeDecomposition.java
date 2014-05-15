@@ -90,65 +90,65 @@ public class TreeDecomposition {
 		
 		System.out.println("split - finished");
 		System.out.println("time: " + SPLIT_time + " size: " + SPLIT_size + " solution: " + split.solution);
-		
-		RowDP<InputData> row = new RowDP<InputData>();
-		row.setInput(niceDecomposition, terminals, weights);
-		row.always = false;
-		
-		time = System.nanoTime();
-		row.run();
-		long ROWC_time = System.nanoTime()-time;
-		long ROWC_size = row.operations;
-		
-		System.out.println("row conditional - finished");
-		System.out.println("time: " + ROWC_time + " size: " + ROWC_size + " solution: " + row.solution);
-				
-		row = new RowDP<InputData>();
-		row.setInput(niceDecomposition, terminals, weights);
-		row.always = true;
-		
-		time = System.nanoTime();
-		row.run();
-		long ROWA_time = System.nanoTime()-time;
-		long ROWA_size = row.operations;
-		
-		System.out.println("row always - finished");
-		System.out.println("time: " + ROWA_time + " size: " + ROWA_size + " solution: " + row.solution); 
-		
-		RankBasedSteinerTreeDP<InputData> rbdp = new RankBasedSteinerTreeDP<InputData>();
-		rbdp.setInput(niceDecomposition, terminals, weights);
-		rbdp.setCondition(false);	
-		
-		time = System.nanoTime();
-		rbdp.run();
-		long RBC_time = System.nanoTime()-time;
-		int RBC_size = rbdp.totalsize;
-				
-		System.out.println("rank based conditional - finished");
-		System.out.println("time: " + RBC_time + " size: " + RBC_size + " solution: " + rbdp.getSolution());
-		
-		rbdp = new RankBasedSteinerTreeDP<InputData>();
-		rbdp.setInput(niceDecomposition, terminals, weights);
-		rbdp.setCondition(true);	
-		
-		time = System.nanoTime();
-		rbdp.run();
-		long RBA_time = System.nanoTime()-time;
-		int RBA_size = rbdp.totalsize;
-			
-		System.out.println("rank based always - finished");
-		System.out.println("time: " + RBA_time + " size: " + RBA_size + " solution: " + rbdp.getSolution());
-		
-		SteinerTreeDP<InputData> dp = new SteinerTreeDP<InputData>();
-		dp.setInput(niceDecomposition, terminals, weights);
-		
-		time = System.nanoTime();
-		dp.run();
-		long FL_time = System.nanoTime()-time;
-		int FL_size = dp.totalsize;
-			
-		System.out.println("folklore - finished");
-		System.out.println("time: " + FL_time + " size: " + FL_size + " solution: " + dp.getSolution());		
+//		
+//		RowDP<InputData> row = new RowDP<InputData>();
+//		row.setInput(niceDecomposition, terminals, weights);
+//		row.always = false;
+//		
+//		time = System.nanoTime();
+//		row.run();
+//		long ROWC_time = System.nanoTime()-time;
+//		long ROWC_size = row.operations;
+//		
+//		System.out.println("row conditional - finished");
+//		System.out.println("time: " + ROWC_time + " size: " + ROWC_size + " solution: " + row.solution);
+//				
+//		row = new RowDP<InputData>();
+//		row.setInput(niceDecomposition, terminals, weights);
+//		row.always = true;
+//		
+//		time = System.nanoTime();
+//		row.run();
+//		long ROWA_time = System.nanoTime()-time;
+//		long ROWA_size = row.operations;
+//		
+//		System.out.println("row always - finished");
+//		System.out.println("time: " + ROWA_time + " size: " + ROWA_size + " solution: " + row.solution); 
+//		
+//		RankBasedSteinerTreeDP<InputData> rbdp = new RankBasedSteinerTreeDP<InputData>();
+//		rbdp.setInput(niceDecomposition, terminals, weights);
+//		rbdp.setCondition(false);	
+//		
+//		time = System.nanoTime();
+//		rbdp.run();
+//		long RBC_time = System.nanoTime()-time;
+//		int RBC_size = rbdp.totalsize;
+//				
+//		System.out.println("rank based conditional - finished");
+//		System.out.println("time: " + RBC_time + " size: " + RBC_size + " solution: " + rbdp.getSolution());
+//		
+//		rbdp = new RankBasedSteinerTreeDP<InputData>();
+//		rbdp.setInput(niceDecomposition, terminals, weights);
+//		rbdp.setCondition(true);	
+//		
+//		time = System.nanoTime();
+//		rbdp.run();
+//		long RBA_time = System.nanoTime()-time;
+//		int RBA_size = rbdp.totalsize;
+//			
+//		System.out.println("rank based always - finished");
+//		System.out.println("time: " + RBA_time + " size: " + RBA_size + " solution: " + rbdp.getSolution());
+//		
+//		SteinerTreeDP<InputData> dp = new SteinerTreeDP<InputData>();
+//		dp.setInput(niceDecomposition, terminals, weights);
+//		
+//		time = System.nanoTime();
+//		dp.run();
+//		long FL_time = System.nanoTime()-time;
+//		int FL_size = dp.totalsize;
+//			
+//		System.out.println("folklore - finished");
+//		System.out.println("time: " + FL_time + " size: " + FL_size + " solution: " + dp.getSolution());		
 		
 	}
 	public static void main(String[] args) throws IOException, InputException {

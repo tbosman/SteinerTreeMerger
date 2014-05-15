@@ -8,8 +8,8 @@ import grph.properties.NumericalProperty;
 
 public abstract class SteinerGrphAlgorithm<R> extends GrphAlgorithm<R> {
 
-	private NumericalProperty weights;
-	private NumericalProperty targets;
+	protected NumericalProperty weights;
+	protected NumericalProperty targets;
 	public SteinerGrphAlgorithm(NumericalProperty weights, NumericalProperty targets) {
 		this.weights = weights;
 		this.targets = targets; 
@@ -32,4 +32,5 @@ public abstract class SteinerGrphAlgorithm<R> extends GrphAlgorithm<R> {
 	public IntSet getTargetNodes(Grph g) {
 		return targets.findElementsWithValue(1, g.getVertices());
 	}
+	
 }

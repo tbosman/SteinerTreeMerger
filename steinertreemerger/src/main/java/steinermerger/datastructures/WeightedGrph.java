@@ -126,4 +126,19 @@ public class WeightedGrph extends InMemoryGrph{
 		}
 		return out;
 	}
+	
+	/**
+	 * removes all vertices except for specified set
+	 * @param vertices
+	 */
+	public void removeAllBut(IntSet vertices) {
+		
+		for(int v: getVertices().toIntArray()) {
+			if(!vertices.contains(v)) {
+				removeVertex(v);
+			}
+		}
+	}
+	
+			
 }
