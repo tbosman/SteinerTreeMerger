@@ -23,7 +23,7 @@ public class ContractSteinerNodesOfDegree2Algorithm extends
 		IntSet nodes2 = g.getVerticesOfDegree(2);
 		IntSet contracted = new DefaultIntSet();
 		for(int v : nodes2.toIntArray()) {
-			if(!isTarget(v)) {
+			if(!isTarget(v) && g.getVertexDegree(v) == 2) {//dont remove target nodes, and check whether vertices hasn't been already contracted
 				IntSet edges = g.getEdgesIncidentTo(v);
 				int e1 = edges.toIntArray()[0]; 
 				int e2 = edges.toIntArray()[1];

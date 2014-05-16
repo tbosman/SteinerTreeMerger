@@ -2,6 +2,7 @@ package steinermerger.datastructures;
 
 import grph.Grph;
 import grph.properties.NumericalProperty;
+import steinermerger.algo.ConstructSPHAlgorithm;
 import steinermerger.algo.ContractSteinerNodesOfDegree2Algorithm;
 import steinermerger.algo.PruneSteinerLeafAlgorithm;
 import steinermerger.algo.SPHAlgorithm;
@@ -18,7 +19,7 @@ import toools.set.IntSet;
  */
 public class SteinerGrph extends WeightedGrph {
 
-	public transient final SPHAlgorithm sphAlgorithm = new SPHAlgorithm(this);
+	public transient final ConstructSPHAlgorithm sphAlgorithm = new ConstructSPHAlgorithm(this);
 	protected transient final SteinerGrphAlgorithm<IntSet> pruneSteinerLeafAlgorithm  = new PruneSteinerLeafAlgorithm(this);
 	protected transient final SteinerGrphAlgorithm<IntSet> contractSteinerNodesAlgorithm = new ContractSteinerNodesOfDegree2Algorithm(this); 
 	protected transient final SteinerGrphAlgorithm<IntSet> spReductionAlgorithm = new SPReductionAlgorithm(this);
@@ -69,6 +70,10 @@ public class SteinerGrph extends WeightedGrph {
 	//Algorithms
 	public SteinerGrph computeSPHGraph(int root) {
 		return sphAlgorithm.compute(this, root);
+	}
+	
+	public SteinerGrph computeSPHGraph2(int root) {
+		return sphAlgorithm.compute2(this, root);
 	}
 
 	public String toString() {

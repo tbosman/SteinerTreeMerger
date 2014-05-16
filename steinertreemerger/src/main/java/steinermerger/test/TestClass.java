@@ -19,7 +19,7 @@ import toools.set.IntSet;
 
 public class TestClass {
 	String dirName =  "C:\\Users\\tbosman\\Dropbox\\School\\Scriptie\\Code\\BenchMarks\\E\\";
-	String instanceName = "e17.stp";
+	String instanceName = "e18.stp";
 	String fileName = dirName+instanceName;
 //	String fileName = "C:\\Users\\tbosman\\Dropbox\\School\\Scriptie\\Code\\BenchMarks\\E\\e17.stp";
 	TestClass() throws IOException{
@@ -30,7 +30,7 @@ public class TestClass {
 
 	public SteinerGrph constructSPH(SteinerGrph g, int root) {
 		System.out.println("Constructing from root: "+root);
-		SteinerGrph sphTree = g.computeSPHGraph(root);
+		SteinerGrph sphTree = g.computeSPHGraph2(root);
 		int steinerLength = 0; 
 		for(int e : sphTree.getEdges().toIntArray()) {
 			steinerLength += sphTree.getEdgeWeight(e);
@@ -68,8 +68,7 @@ public class TestClass {
 		int[] targetArray = g.getTargetNodes().toIntArray();
 		
 		int step = 1; 
-		step = targetArray.length/10;
-		int maxIt = 100;
+		int maxIt = 2;
 		SteinerGrph sphUnion = new SteinerGrph();
 		for(int i=0; i< targetArray.length && i <step*maxIt ; i=i+step) {
 			SteinerGrph sph = constructSPH(g, targetArray[i]);
@@ -82,7 +81,7 @@ public class TestClass {
 //		sphUnion.addSubgraph(t);
 //		sphUnion.pruneSteinerLeafs();
 		System.out.println(sphUnion);
-		/*
+		
 		System.out.println("Minimum spanning Tree reduction: ");
 		WeightedGrph mst = sphUnion.computeMinimumSpanningTree();
 		GrphTools.copyProperties(sphUnion, mst);
@@ -91,7 +90,7 @@ public class TestClass {
 		System.out.println(sphUnion);
 		System.out.println(sphUnion.pruneSteinerLeafs());
 		System.out.println(sphUnion);
-		*/
+		
 		sphUnion.displayGraphstream_0_4_2();
 		
 		System.out.println("Original graph: ");
@@ -131,7 +130,7 @@ public class TestClass {
 		IntSet prunedSet = g.pruneSteinerLeafs();
 		IntSet contractedSet = g.contractDegree2();
 		System.out.println("#Pruned leafs: "+prunedSet.size());
-		System.out.println("#Contracted degr. 2 nodes: "+g.contractDegree2().size());
+		System.out.println("#Contracted degr. 2 nodes: "+contractedSet.size());
 		System.out.println("#Removed infeasible edges (sp criterium): "+g.spReduction().size());
 		prunedSet = g.pruneSteinerLeafs();
 		contractedSet = g.contractDegree2();
@@ -144,7 +143,7 @@ public class TestClass {
 	}
 	
 	public void start() throws IOException {
-		fileName = dirName+"e18"+".stp";
+//		fileName = dirName+"c01"+".stp";
 		SteinerGrph g = readInstance(fileName);
 
 		preProcess(g, true);
