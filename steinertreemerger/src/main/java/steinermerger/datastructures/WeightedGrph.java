@@ -21,7 +21,7 @@ import toools.set.UnmodifiableIntSet;
  * @author tbosman
  *
  */
-public class WeightedGrph extends InMemoryGrph{
+public class WeightedGrph extends InMemoryGrph implements Comparable<WeightedGrph>{
 	private NumericalProperty edgeWeight = new NumericalProperty("edge weights",32, 0 ); 
 
 
@@ -141,4 +141,19 @@ public class WeightedGrph extends InMemoryGrph{
 	}
 	
 			
+	public int totalLength() {
+		int length = 0; 
+		for(int e : getEdges().toIntArray()) {
+			length += getEdgeWeight(e);
+		}
+		return length;
+	}
+	/**
+	 * Compares based on total graph length (Sum of edge weights)
+	 * @param otherGrph
+	 * @return
+	 */
+	public int compareTo(WeightedGrph otherGrph){
+		return this.totalLength() - otherGrph.totalLength(); 
+	}
 }

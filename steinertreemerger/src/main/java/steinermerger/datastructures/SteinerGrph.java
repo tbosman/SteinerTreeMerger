@@ -4,6 +4,7 @@ import grph.Grph;
 import grph.properties.NumericalProperty;
 import steinermerger.algo.ConstructSPHAlgorithm;
 import steinermerger.algo.ContractSteinerNodesOfDegree2Algorithm;
+import steinermerger.algo.InsertNodeImprovementAlgorithm;
 import steinermerger.algo.PruneSteinerLeafAlgorithm;
 import steinermerger.algo.SPHAlgorithm;
 import steinermerger.algo.SPReductionAlgorithm;
@@ -23,6 +24,8 @@ public class SteinerGrph extends WeightedGrph {
 	protected transient final SteinerGrphAlgorithm<IntSet> pruneSteinerLeafAlgorithm  = new PruneSteinerLeafAlgorithm(this);
 	protected transient final SteinerGrphAlgorithm<IntSet> contractSteinerNodesAlgorithm = new ContractSteinerNodesOfDegree2Algorithm(this); 
 	protected transient final SteinerGrphAlgorithm<IntSet> spReductionAlgorithm = new SPReductionAlgorithm(this);
+	
+	protected transient final InsertNodeImprovementAlgorithm nodeImprovementAlgorithm = new InsertNodeImprovementAlgorithm(this);
 
 	public SteinerGrph() {
 		super();
@@ -96,5 +99,25 @@ public class SteinerGrph extends WeightedGrph {
 		contractDegree2();
 		pruneSteinerLeafs();
 		spReduction();
+	}
+	
+	public SteinerGrph mstPrune(SteinerGrph original){
+		SteinerGrph prunedGrph = new SteinerGrph(original);
+		prunedGrph.removeAllBut(this.getVertices());
+		prunedGrph = new SteinerGrph(prunedGrph.computeMinimumSpanningTree());
+		GrphTools.copyProperties(original, prunedGrph);
+		prunedGrph.pruneSteinerLeafs();
+		if(prunedGrph.totalLength() < this.totalLength()) {
+			int improvement = prunedGrph.totalLength() - this.totalLength();
+//			System.out.println("#DBG MST prune reduced length: "+improvement);
+			
+		}else {
+//			System.out.println("#DBG MST prune no improvement");
+		}
+		return prunedGrph;
+	}
+	
+	public SteinerGrph insertNodeImprovement(SteinerGrph original) {
+		return nodeImprovementAlgorithm.compute(this, original);
 	}
 }

@@ -46,7 +46,25 @@ import libtw.ngraph.NVertex;
  * Running time and number of generated partial solutions are measured */
 public class TreeDecomposition {
 	
-	public void computeTreeDP(TWLibWrapperGrph in) {
+	public int computeTreeWidth(TWLibWrapperGrph in ) {
+		NGraph<InputData> g;
+		g = in.get();
+		
+		Constructive<InputData> theAlgorithm = new PermutationToTreeDecomposition<InputData>( new GreedyDegree<InputData>() );
+		theAlgorithm.setInput(g);
+		theAlgorithm.run();
+		NGraph<NTDBag<InputData>> td = theAlgorithm.getDecomposition();	
+			
+		int tw = 0;
+		for (int i = 0; i < td.getNumberOfVertices(); i++){
+			if (td.getVertex(i).data.vertices.size()>tw){
+				tw = td.getVertex(i).data.vertices.size();
+			}
+		}
+		return tw;
+	}
+	
+	public int computeTreeDP(TWLibWrapperGrph in) {
 				NGraph<InputData> g;
 
 		g = in.get();
@@ -90,6 +108,7 @@ public class TreeDecomposition {
 		
 		System.out.println("split - finished");
 		System.out.println("time: " + SPLIT_time + " size: " + SPLIT_size + " solution: " + split.solution);
+		return split.solution;
 //		
 //		RowDP<InputData> row = new RowDP<InputData>();
 //		row.setInput(niceDecomposition, terminals, weights);

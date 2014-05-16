@@ -24,11 +24,23 @@ public class SPReductionAlgorithm extends SteinerGrphAlgorithm<IntSet> {
 
 	@Override
 	public IntSet compute(Grph g) {
-		WeightedDistanceMatrixAlgorithm fw = new StackBasedBellmanFordWeightedMatrixAlgorithm(weights);
+		WeightedDistanceMatrixAlgorithm fw;	
+		g.addVertex(0);//Floyd warshall implementation works only on vertex set that run from 0 to size
+		for(int i=0; i<g.getVertices().getGreatest();i++) {
+			if(!g.containsVertex(i)) {
+				g.addVertex(i);
+			}
+		}
+		if(g.getVertices().isContiguous()) { 
+			fw = new FloydWarshallAlgorithm(weights);
+		}else {
+			fw = new StackBasedBellmanFordWeightedMatrixAlgorithm(weights);
+		}
+
 		DistanceMatrix dist = fw.compute(g);
-		System.out.println("#DBG Dist mat computed");
+		System.out.println("#DBG Dist mat computed with"+fw.getClass().getName());
 		IntSet removed = new DefaultIntSet();
-		
+
 		for(int e : g.getEdges().toIntArray()) {
 			int v1 = g.getOneVertex(e);
 			int v2 = g.getTheOtherVertex(e, v1);
@@ -39,6 +51,10 @@ public class SPReductionAlgorithm extends SteinerGrphAlgorithm<IntSet> {
 				removed.add(e);
 			}
 		}
+		for(int v : g.getVerticesOfDegree(0).toIntArray()) {
+			g.removeVertex(v);
+		}
+		
 		return removed;
 	}
 
