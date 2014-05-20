@@ -4,6 +4,7 @@ import java.util.Random;
 
 import grph.Grph;
 import steinermerger.datastructures.SteinerGrph;
+import steinermerger.util.GrphTools;
 import toools.set.DefaultIntSet;
 import toools.set.IntSet;
 
@@ -22,34 +23,57 @@ public class InsertNodeImprovementAlgorithm extends SteinerGrphAlgorithm<Steiner
 		if(originalGrph == null) {
 			throw new IllegalStateException("Orginal graph not set");
 		}else {
-			return compute(g, originalGrph);
+			return compute(g, originalGrph, 5);
 		}
 	}
 
-	public SteinerGrph compute( Grph g, SteinerGrph originalGrph) {
+
+
+	/**
+	 * 
+	 * @param g
+	 * @param originalGrph
+	 * @return
+	 */
+	public SteinerGrph compute( Grph g, SteinerGrph originalGrph, int numNeighbours) {
 		SteinerGrph newGrph = new SteinerGrph(g);
 		IntSet currentVertices = g.getVertices();
 
+		long start = System.currentTimeMillis();
 		IntSet candidateNodes = new DefaultIntSet(); 
 		for(int v: currentVertices.toIntArray()) {
-			IntSet nodes = originalGrph.getKClosestNeighbors(v, 2, weights);
+			IntSet nodes = originalGrph.getKClosestNeighbors(v, numNeighbours, weights);
 			candidateNodes.addAll(nodes);
-
+			
+				candidateNodes.add(v);
+			
 		}
 
 		Random prng = new Random(System.currentTimeMillis());
-		candidateNodes.pickRandomElement(prng, true);
 
 		IntSet addedTargets = new DefaultIntSet(); 
 
+		SteinerGrph fullGrph = new SteinerGrph(originalGrph); 
+		fullGrph.removeAllBut(candidateNodes);
+		KruskalAlgorithm kruskal = new KruskalAlgorithm(fullGrph.getEdgeWeightProperty());
+		kruskal.sortWeights(originalGrph);
 
 		while(!candidateNodes.isEmpty()) {
 			int v = candidateNodes.pickRandomElement(prng, true);
 			if(!newGrph.containsVertex(v) ){
-				if(originalGrph.getNeighbours(newGrph.getVertices()).contains(v)) {//Check if there still exists an edge to current tree
+
+				IntSet singletonV = new DefaultIntSet();
+				singletonV.add(v);
+				IntSet connecting = originalGrph.getEdgesConnecting(newGrph.getVertices(), singletonV);
+				if(connecting.size() > 1) {//Only feasible for improvement if at least 2 edges connect v with current tree
 					newGrph.addVertex(v);
 					newGrph.setTargetNode(v, true);
-					SteinerGrph proposedGrph = newGrph.mstPrune(originalGrph);
+					SteinerGrph proposedGrph = new SteinerGrph(originalGrph);
+					proposedGrph.removeAllBut(newGrph.getVertices());
+
+					proposedGrph = new SteinerGrph(kruskal.compute(proposedGrph, kruskal.weightList));
+					proposedGrph.pruneSteinerLeafs();
+
 					if(proposedGrph.totalLength() < newGrph.totalLength()) {
 						newGrph = proposedGrph;
 						addedTargets.add(v);
@@ -59,6 +83,19 @@ public class InsertNodeImprovementAlgorithm extends SteinerGrphAlgorithm<Steiner
 				}
 			}else {
 				//node allready in stg
+				if(!originalGrph.isTargetNode(v)) {
+					SteinerGrph proposedGrph = new SteinerGrph(originalGrph);
+					proposedGrph.removeAllBut(newGrph.getVertices());
+					proposedGrph.removeVertex(v);
+					if(proposedGrph.isConnected()) {
+						proposedGrph = new SteinerGrph(kruskal.compute(proposedGrph, kruskal.weightList));
+						proposedGrph.pruneSteinerLeafs();
+						if(proposedGrph.totalLength() < newGrph.totalLength()) {
+							newGrph = proposedGrph;
+						}
+
+					}
+				}
 			}
 
 		}

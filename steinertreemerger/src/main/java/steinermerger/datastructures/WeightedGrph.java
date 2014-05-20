@@ -26,6 +26,8 @@ public class WeightedGrph extends InMemoryGrph implements Comparable<WeightedGrp
 
 
 	public transient final GrphAlgorithm<WeightedGrph> primAlgorithm = new PrimAlgorithm(edgeWeight);
+	public transient final GrphAlgorithm<WeightedGrph> kruskalAlgorithm = new KruskalAlgorithm(edgeWeight);
+
 	public transient final GrphAlgorithm<SearchResult> subgraphShortestPathsAlgorithm = new SubgraphShortestPathsAlgorithm(edgeWeight);
 	public transient final GrphAlgorithm<SearchResult[]> dijkstraAlgorithm = new DijkstraAlgorithm(edgeWeight);
 
@@ -67,8 +69,12 @@ public class WeightedGrph extends InMemoryGrph implements Comparable<WeightedGrp
 		getEdgeLabelProperty().setValue(e, "e"+e+":"+newWeight);
 	}
 
-	public WeightedGrph computeMinimumSpanningTree() {
+	public WeightedGrph computeMinimumSpanningTreePrim() {
 		return primAlgorithm.compute(this);
+	}
+	
+	public WeightedGrph computeMinimumSpanningTreeKruskal() {
+		return kruskalAlgorithm.compute(this);
 	}
 
 
@@ -155,5 +161,10 @@ public class WeightedGrph extends InMemoryGrph implements Comparable<WeightedGrp
 	 */
 	public int compareTo(WeightedGrph otherGrph){
 		return this.totalLength() - otherGrph.totalLength(); 
+	}
+	
+	public void addWeightedEdge(int src, int edge, int dest, int weight) {
+		addSimpleEdge(src, edge, dest, false);
+		setEdgeWeight(edge, weight);
 	}
 }

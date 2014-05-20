@@ -10,6 +10,7 @@ import steinermerger.algo.SPHAlgorithm;
 import steinermerger.algo.SPReductionAlgorithm;
 import steinermerger.algo.SteinerGrphAlgorithm;
 import steinermerger.util.GrphTools;
+import toools.set.DefaultIntSet;
 import toools.set.IntSet;
 
 /**
@@ -104,12 +105,15 @@ public class SteinerGrph extends WeightedGrph {
 	public SteinerGrph mstPrune(SteinerGrph original){
 		SteinerGrph prunedGrph = new SteinerGrph(original);
 		prunedGrph.removeAllBut(this.getVertices());
-		prunedGrph = new SteinerGrph(prunedGrph.computeMinimumSpanningTree());
+		//SteinerGrph prunedGrph1 = new SteinerGrph(prunedGrph.computeMinimumSpanningTreeKruskal());
+		SteinerGrph prunedGrph2 = new SteinerGrph(prunedGrph.computeMinimumSpanningTreePrim());
+		//assert prunedGrph1.totalLength() == prunedGrph2.totalLength();
+		prunedGrph = prunedGrph2;
 		GrphTools.copyProperties(original, prunedGrph);
 		prunedGrph.pruneSteinerLeafs();
 		if(prunedGrph.totalLength() < this.totalLength()) {
 			int improvement = prunedGrph.totalLength() - this.totalLength();
-//			System.out.println("#DBG MST prune reduced length: "+improvement);
+			//System.out.println("#DBG MST prune reduced length: "+improvement);
 			
 		}else {
 //			System.out.println("#DBG MST prune no improvement");
@@ -117,7 +121,30 @@ public class SteinerGrph extends WeightedGrph {
 		return prunedGrph;
 	}
 	
-	public SteinerGrph insertNodeImprovement(SteinerGrph original) {
-		return nodeImprovementAlgorithm.compute(this, original);
+	public SteinerGrph insertNodeImprovement(SteinerGrph original, int numNeighbours) {
+		
+		return nodeImprovementAlgorithm.compute(this, original, numNeighbours);
 	}
+	
+
+	public IntSet getEdgesConnecting(IntSet srcSet, IntSet destSet) {
+		IntSet edges = new DefaultIntSet(); 
+		
+		IntSet minSet = srcSet.size() < destSet.size() ? srcSet : destSet; 
+		IntSet maxSet = srcSet.size() >= destSet.size() ? srcSet : destSet; 
+		
+		for(int v: minSet.toIntArray()) {
+			for(int e : getEdgesIncidentTo(v).toIntArray()) {
+				int w = getTheOtherVertex(e, v);
+				if(maxSet.contains(w)) {
+					edges.add(e);
+				}
+			}
+		}
+		
+		return edges;
+	}
+	
+	
+	
 }
