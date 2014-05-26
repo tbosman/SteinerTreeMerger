@@ -2,6 +2,7 @@ package steinermerger.test;
 
 import grph.Grph;
 import grph.gui.GraphstreamBasedRenderer;
+import grph.properties.NumericalProperty;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,7 +23,7 @@ import steinermerger.util.GrphTools;
 import toools.set.IntSet;
 
 public class TestClass {
-	String dirName =  "C:\\Users\\tbosman\\Dropbox\\School\\Scriptie\\Code\\BenchMarks\\i080\\";
+	String dirName =  "C:\\Users\\tbosman\\Dropbox\\School\\Scriptie\\Code\\BenchMarks\\I080\\";
 	String instancePrefix = "I080-";
 	int instanceDigits = 3;
 	String instanceNumber = "015";
@@ -42,21 +43,36 @@ public class TestClass {
 	}
 
 
-	public SteinerGrph constructSPH(SteinerGrph g, int root, boolean perturbations) {
-		if(perturbations) {
-			Random rng = new Random();
+	public SteinerGrph constructSPH(SteinerGrph g, int root, int perturbationType, int iterationNumber) {
+		SteinerGrph gPerturbed = new SteinerGrph(g);
+		Random rng = new Random();
+		double maxUsed = Math.max(iterationNumber, 1);
+		if(perturbationType == 1) {
 
-			SteinerGrph gPerturbed = new SteinerGrph(g);
 			for(int e : g.getEdges().toIntArray()) {
 				int newWeight = (int) Math.round(g.getEdgeWeight(e)*rng.nextDouble()*2);
 				gPerturbed.setEdgeWeight(e, Math.max(newWeight,1));
 			}
-			SteinerGrph sph =  constructSPH(gPerturbed, root);
-			sph.setEdgeWeights(g.getEdgeWeightProperty());
-			return sph;
-		}else {
-			return constructSPH(g, root);
+
+		}else if(perturbationType == 2) {
+			for(int e : g.getEdges().toIntArray()) {
+				double randomizationCoefficient = 1.25 + 0.75*(g.getEdgeWidthProperty().getValue(e)-1)/maxUsed;
+				int newWeight = (int) Math.round(g.getEdgeWeight(e)*rng.nextDouble()*randomizationCoefficient);
+				gPerturbed.setEdgeWeight(e, Math.max(newWeight,1));
+			}
+		}else if(perturbationType == 3) {
+			for(int e : g.getEdges().toIntArray()) {
+				double randomizationCoefficient = 2.0 - 0.75*(g.getEdgeWidthProperty().getValue(e)-1)/maxUsed;
+				int newWeight = (int) Math.round(g.getEdgeWeight(e)*rng.nextDouble()*randomizationCoefficient);
+				gPerturbed.setEdgeWeight(e, Math.max(newWeight,1));
+			}
 		}
+
+
+
+		SteinerGrph sph =  constructSPH(gPerturbed, root);
+		sph.setEdgeWeights(g.getEdgeWeightProperty());
+		return sph;
 	}
 
 	public SteinerGrph constructSPH(SteinerGrph g, int root) {
@@ -92,25 +108,82 @@ public class TestClass {
 		return gOut; 
 	}
 
+	//adds edges from sph to sphUnion until tree width is maxed out 
+	public SteinerGrph addPartialSolution(SteinerGrph sphUnion, SteinerGrph sph, int maxTw) {
+
+		int tw = 0; 
+		IntSet edges = sph.getEdges().clone(); 
+		Random prng = new Random(System.currentTimeMillis());
+
+		TreeDecomposition tdCalculator = new TreeDecomposition();
+		while(tw < maxTw && !edges.isEmpty()) {
+			int e = edges.pickRandomElement(prng, true);
+			int v = sph.getOneVertex(e);
+			int w = sph.getTheOtherVertex(e, v);
+			int weight = sph.getEdgeWeight(e); 
+			if(!sphUnion.containsEdge(e)){
+				if(!sphUnion.containsVertex(v)) {
+					sphUnion.addVertex(v);
+				}
+				if(!sphUnion.containsVertex(w)) {
+					sphUnion.addVertex(w);
+				}
+				sphUnion.addWeightedEdge(v, e, w, weight);
+
+			}
+			tw = tdCalculator.computeTreeWidth(new TWLibWrapperGrph(sphUnion));
+			if(tw > maxTw) {
+				sphUnion.pruneSteinerLeafs();
+				if(tw > maxTw) {
+					if(sphUnion.containsEdge(e)) {//pruning might have removed e
+						sphUnion.removeEdge(e);
+					}
+				}
+			}
+		}
+
+
+		return sphUnion;
+	}
+
 	public int[] sphAlltoDP(ArrayList<SteinerGrph> sphList, SteinerGrph g) {
 		int maxTw = 10;
-		SteinerGrph sphUnion = new SteinerGrph();
+		SteinerGrph sphUnion = sphList.get(0);
 
 		Collections.sort(sphList);
 		int minSphLength = sphList.get(0).totalLength();
-		int numTrees = 0;
+		int numTrees = 1;
+
+		ArrayList<SteinerGrph> unusedList = new ArrayList<SteinerGrph>();
+		
+		long start = System.currentTimeMillis(); 
 		for(SteinerGrph sph : sphList) {
+			
 
 
 			SteinerGrph newSphUnion = new SteinerGrph(sphUnion);
 			newSphUnion.addSubgraph(sph);
-			int tw = new TreeDecomposition().computeTreeWidth(new TWLibWrapperGrph(newSphUnion));
-			//	System.out.println("Tw: "+tw);
-			if(tw > maxTw) {
-				newSphUnion.mstPrune(g);
-				tw = new TreeDecomposition().computeTreeWidth(new TWLibWrapperGrph(newSphUnion));
-				if(tw > maxTw) {
-
+//			int tw = new TreeDecomposition().computeTreeWidth(new TWLibWrapperGrph(newSphUnion));
+//			if(tw > maxTw) {
+//				newSphUnion.mstPrune(g);
+//				tw = new TreeDecomposition().computeTreeWidth(new TWLibWrapperGrph(newSphUnion));
+//				if(tw > maxTw) {
+//					unusedList.add(sph);
+//				}else {
+//					sphUnion = newSphUnion; 
+//					numTrees++;
+//					System.out.println("#DBG Pruning helped!");
+//				}
+//			}else {
+//				sphUnion = newSphUnion;
+//				numTrees++;
+//			}
+			boolean twTractable = new TreeDecomposition().computeTreeWidthIsLEQ(new TWLibWrapperGrph(newSphUnion), maxTw-1);
+			if(!twTractable) {
+				//newSphUnion.mstPrune(g);
+				//twTractable = new TreeDecomposition().computeTreeWidthIsLEQ(new TWLibWrapperGrph(newSphUnion), maxTw);
+				if(!twTractable) {
+					unusedList.add(sph);
 				}else {
 					sphUnion = newSphUnion; 
 					numTrees++;
@@ -122,14 +195,22 @@ public class TestClass {
 			}
 
 
-
-			//			System.out.println("Post reduction");
-			//			sphUnion.reduceGraph();
-
 		}
+		System.out.println("Time adding solutions to union: "+(System.currentTimeMillis()-start));
+
 		if(numTrees < sphList.size()) {
-			System.out.println("TW maxed out, trees used: "+numTrees);
+			System.out.println("TW maxed out @ trees used: "+numTrees);
 		}
+		System.out.println("Trying to add partial solutions");
+		for(SteinerGrph sph : unusedList) {
+
+			sphUnion = addPartialSolution(sphUnion, sph, maxTw);
+
+		}
+		System.out.println(sphUnion);
+		System.out.println("pruning");
+		sphUnion.pruneSteinerLeafs();
+
 
 		System.out.println(sphUnion);
 		sphUnion = fillInTreeDecomposition(sphUnion, g);
@@ -177,39 +258,93 @@ public class TestClass {
 			step = targetArray.length/maxIt;
 		}
 		SteinerGrph sphUnion = new SteinerGrph();
+
 		ArrayList<SteinerGrph> sphList = new ArrayList<SteinerGrph>();
+
+
 		for(int i=0; i<maxIt; i++) {
+
+			long start2 = System.currentTimeMillis();
+
 			int iRoot = i*step;
 			while(iRoot >= targetArray.length) {
 				iRoot = iRoot - targetArray.length;
 			}
 
 			//for(int i=0; i< targetArray.length && i <step*maxIt ; i=i+step) {
-			SteinerGrph sph = constructSPH(g, targetArray[iRoot], true);
+			int perturbationStrat;
+			if(i<2) {
+				perturbationStrat = 0;
+			}else {
+				perturbationStrat = new Random().nextInt(3)+1;
+			}
 
-			int numNeighbours = 2; 
-			SteinerGrph improvedSph = sph.insertNodeImprovement(g,2);
-
-			System.out.print("Improvement procedure: "+numNeighbours);
-			while(numNeighbours < 64 || improvedSph.totalLength() < sph.totalLength()) {
-				if(improvedSph.totalLength() < sph.totalLength()) {
-					sph = improvedSph; 
-					improvedSph = sph.insertNodeImprovement(g, numNeighbours);
-				}else {
-					numNeighbours *= 32;
-					improvedSph = sph.insertNodeImprovement(g, numNeighbours);
+			SteinerGrph sph = constructSPH(g, targetArray[iRoot], perturbationStrat, i);
+			for(int i1=0;i1<5;i1++) {
+				SteinerGrph candSph = constructSPH(g, targetArray[iRoot], perturbationStrat, i1);
+				if(candSph.totalLength() < sph.totalLength()) {
+					sph = candSph;
 				}
-				System.out.print(numNeighbours);
+
+			}
+			long sphTime = System.currentTimeMillis(); 
+
+			SteinerGrph improvedSph = sph.insertNodeImprovement(g);
+
+			System.out.print("Improvement procedure: I");
+			while(improvedSph.totalLength() < sph.totalLength()) {
+				sph = improvedSph;
+				improvedSph = sph.insertNodeImprovement(g);
+
+				System.out.print("I");
 			}
 
 
+			long nodeTime = System.currentTimeMillis() - sphTime;
+			sphTime = sphTime - start2;
 
-			System.out.println(" - Total length: "+sph.totalLength());
+			System.out.println(" - Total length: "+sph.totalLength()+" \t time sph: "+sphTime+", local search time: "+nodeTime);
 
 			sphList.add(sph);
+
+			//Keep count of edge use through the  
+			for(int e : sph.getEdges().toIntArray()) {
+				long used = g.getEdgeWidthProperty().getValue(e);
+				g.getEdgeWidthProperty().setValue(e, used+1);				
+			}
+
 		}
-		long timeSPH = System.currentTimeMillis() - startSPH;
 		Collections.sort(sphList);
+		//Elite solution
+		boolean doElite = true;
+		if(doElite) {
+
+			SteinerGrph elite = new SteinerGrph();
+			for(SteinerGrph sph : sphList) {
+				if(sph.totalLength() < sphList.get(0).totalLength()*1.01)
+					elite.addSubgraph(sph);
+			}
+			SteinerGrph eliteSph = constructSPH(elite, elite.getTargetNodes().getGreatest());
+			SteinerGrph sph = eliteSph;
+			System.out.println(" Elite SPh length: "+eliteSph.totalLength());
+			SteinerGrph improvedSph = sph.insertNodeImprovement(g);
+
+			System.out.print("Improvement procedure: I");
+			while(improvedSph.totalLength() < sph.totalLength()) {
+				sph = improvedSph;
+				improvedSph = sph.insertNodeImprovement(g);
+
+				System.out.print("I");
+			}
+
+		System.out.println("Improeved Elite SPh length: "+sph.totalLength());
+		sphList.add(sph);
+		}
+
+
+
+		long timeSPH = System.currentTimeMillis() - startSPH;
+		
 		minSphLength = sphList.get(0).totalLength();
 
 
@@ -217,7 +352,7 @@ public class TestClass {
 		long startTD = System.currentTimeMillis();
 		int[] tdSolution = sphAlltoDP(sphList, g);
 		minTDLength = tdSolution[0];
-		while(tdSolution[1] < sphList.size()){
+		while(false && tdSolution[1] < sphList.size()){
 			Random rng = new Random(System.currentTimeMillis());
 			for(int i=0;i<tdSolution[1];i++) {				
 				sphList.remove(rng.nextInt(sphList.size()));	
@@ -228,12 +363,12 @@ public class TestClass {
 				minTDLength = tdSolution[0];
 			}
 		}
-
+		long timeDP = System.currentTimeMillis() - startTD;
 		// ---
 		int[] out = new int[5];
 		out[0] = minSphLength;
 		out[1] = minTDLength;
-		long timeDP = System.currentTimeMillis() - startTD; 
+
 		out[2] = (int) timeSPH;
 		out[3] = (int) timeDP;
 		out[4] = tdSolution[1];
@@ -311,17 +446,26 @@ public class TestClass {
 
 	public void start() throws IOException {
 		//		fileName = dirName+"c01"+".stp";
+		int mb = 1024*1024;
+		System.out.println(Runtime.getRuntime().maxMemory()/mb);
 
 		int maxIt = 10; 
-		for(int m=1; m<5; m= m*2) {
+		for(int m=1; m<20; m= m*2) {
 			maxIt = m*10;
 			String results = "";
-			FileWriter writer = new FileWriter(System.currentTimeMillis()+"_"+instancePrefix+"_results_maxit"+maxIt+".txt");
-			for(int i=311; i<320;i++) {
+			FileWriter writer = new FileWriter("C:\\Users\\tbosman\\git\\steiner\\steinertreemerger\\results\\"+""+instancePrefix+"_results_maxit"+maxIt+"_"+System.currentTimeMillis()+".txt");
+			for(int i=0; i<1;i++) {
 				try {
-					SteinerGrph g = readInstance(getFilename(i));
-					preProcess(g, true);
 					long start = System.currentTimeMillis();
+					SteinerGrph g = readInstance(getFilename(i));
+
+					//SteinerGrph g = readInstance(dirName+"bip52p.stp");
+
+					preProcess(g, true);
+					long stop = start-System.currentTimeMillis();
+					System.out.println("Time reading and preprocessing: "+stop);
+
+					start = System.currentTimeMillis();
 					//g.displayGraphstream_0_4_2();
 					int[] solutions = sphAllandTD(g, false, maxIt);
 

@@ -40,6 +40,8 @@ public class KruskalAlgorithm extends GrphAlgorithm<WeightedGrph>{
 		sortWeights(g);
 		return compute(g, weightList); 				
 	}
+	
+	
 
 	public WeightedGrph compute(Grph g, List<VertexIntValue> weightList) {
 		//keep track of which connected component each vertex belongs to

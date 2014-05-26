@@ -37,6 +37,7 @@ import toools.set.IntSet;
 import libtw.algorithm.Constructive;
 import libtw.algorithm.GreedyDegree;
 import libtw.algorithm.PermutationToTreeDecomposition;
+import libtw.algorithm.MaxTwGreedyDegree;
 import libtw.input.GraphInput;
 import libtw.input.InputException;
 import libtw.input.GraphInput.InputData;
@@ -49,6 +50,21 @@ import libtw.ngraph.NVertex;
  * Running time and number of generated partial solutions are measured */
 public class TreeDecomposition {
 
+	public boolean computeTreeWidthIsLEQ(TWLibWrapperGrph in, int maxTw) {
+		NGraph<InputData> g;
+		g = in.get();
+		MaxTwGreedyDegree<InputData> twCalculator = new MaxTwGreedyDegree<InputData>(); 
+		twCalculator.setInput(g);
+		twCalculator.setMaxTw(maxTw);
+		twCalculator.run();
+		int tw = twCalculator.getUpperBound();
+		if(tw > maxTw) {
+			return false;
+		}else {
+			return true;
+		}	
+	}
+	
 	public int computeTreeWidth(TWLibWrapperGrph in ) {
 		NGraph<InputData> g;
 		g = in.get();
@@ -82,7 +98,7 @@ public class TreeDecomposition {
 			while(bagIterator.hasNext()) {
 				bags[i].add(Integer.parseInt(bagIterator.next().data.name));
 			}			
-			
+
 		}
 		return bags;
 	}
@@ -130,7 +146,7 @@ public class TreeDecomposition {
 		tddp.run();
 		long SPLIT_time = System.nanoTime()-time;
 		long SPLIT_size = tddp.operations;
-		
+
 
 		System.out.println("split - finished");
 		System.out.println("time: " + SPLIT_time + " size: " + SPLIT_size + " solution: " + tddp.solution);

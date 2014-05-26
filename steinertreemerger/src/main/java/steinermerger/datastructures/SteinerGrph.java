@@ -121,9 +121,9 @@ public class SteinerGrph extends WeightedGrph {
 		return prunedGrph;
 	}
 	
-	public SteinerGrph insertNodeImprovement(SteinerGrph original, int numNeighbours) {
+	public SteinerGrph insertNodeImprovement(SteinerGrph original) {
 		
-		return nodeImprovementAlgorithm.compute(this, original, numNeighbours);
+		return nodeImprovementAlgorithm.compute(this, original);
 	}
 	
 

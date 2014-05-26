@@ -26,7 +26,7 @@ import steinermerger.datastructures.SteinerGrph;
  *
  */
 public class STPReader {
-	
+
 	private String filename;
 	private SteinerGrph g;
 
@@ -35,9 +35,9 @@ public class STPReader {
 	}
 
 	public SteinerGrph get() throws IOException {
-		
+
 		g = new SteinerGrph();
-		
+
 		FileReader fr;
 		try	{
 			fr = new FileReader(filename);
@@ -58,20 +58,22 @@ public class STPReader {
 		catch (IOException e) {
 			throw (e);
 		}
-		
+
 		Boolean reading = true;
-		
+
 		try{
 			while( (line=in.readLine()) !=null && reading){
-				
+
 				String[] tokens = line.split("\\s+");
 				assert tokens.length > 0;
-				
+
 				String command = tokens[0];
-				
+
 				if( command.equals("") )
 				{	// empty line
 					continue;
+				}else if(command.equals("Comments")) {
+					skipSection(in);
 				} else if (command.toLowerCase().equals("section")) {
 					String section = tokens[1].toLowerCase();
 					if (section.equals("comment")){
@@ -82,12 +84,14 @@ public class STPReader {
 						readTerminals(in);
 					} else if (section.equals("coordinates")){
 						skipSection(in);
-					} else{
-						throw new Error("unknown section");
+					}else if(section.equals("presolve")) {
+						skipSection(in);
+					}else{
+						throw new Error("unknown section: "+section);
 					}
 				} else if (command.equals("EOF")) {
 					reading = false;
-				} else {
+				}  else {
 					System.out.println( "Unknown command '" + command + "' at line " + in.getLineNumber() );
 				}
 			}
@@ -97,7 +101,7 @@ public class STPReader {
 		}		
 		return g;
 	}
-	
+
 	private void skipSection(LineNumberReader in) throws IOException{	
 		String line;
 		Boolean reading = true;
@@ -109,9 +113,9 @@ public class STPReader {
 			} 
 		}
 	}
-	
+
 	private void readGraph(LineNumberReader in) throws IOException{
-		
+
 		String line;
 		Boolean reading = true;
 		int currentEdges = 0;
@@ -143,12 +147,12 @@ public class STPReader {
 				System.out.println( "Unknown command '" + command + "' at line " + in.getLineNumber() );
 			}
 		}
-		
+
 		if (edges != currentEdges){
 			throw new Error("missing edges");
 		}
 	}
-	
+
 	private void readTerminals(LineNumberReader in) throws IOException{
 		String line;
 		Boolean reading = true;
@@ -173,5 +177,5 @@ public class STPReader {
 			throw new Error("missing terminals");
 		}
 	}
-	
+
 }
