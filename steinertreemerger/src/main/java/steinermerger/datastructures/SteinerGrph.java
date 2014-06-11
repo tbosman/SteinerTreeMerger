@@ -21,6 +21,8 @@ import toools.set.IntSet;
  */
 public class SteinerGrph extends WeightedGrph {
 
+	
+	
 	public transient final ConstructSPHAlgorithm sphAlgorithm = new ConstructSPHAlgorithm(this);
 	protected transient final SteinerGrphAlgorithm<IntSet> pruneSteinerLeafAlgorithm  = new PruneSteinerLeafAlgorithm(this);
 	protected transient final SteinerGrphAlgorithm<IntSet> contractSteinerNodesAlgorithm = new ContractSteinerNodesOfDegree2Algorithm(this); 
@@ -28,6 +30,8 @@ public class SteinerGrph extends WeightedGrph {
 	
 	protected transient final InsertNodeImprovementAlgorithm nodeImprovementAlgorithm = new InsertNodeImprovementAlgorithm(this);
 
+	public PreSolve preSolve = new PreSolve();
+	
 	public SteinerGrph() {
 		super();
 	}

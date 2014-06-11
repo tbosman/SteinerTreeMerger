@@ -85,7 +85,7 @@ public class STPReader {
 					} else if (section.equals("coordinates")){
 						skipSection(in);
 					}else if(section.equals("presolve")) {
-						skipSection(in);
+						readPreSolve(in);
 					}else{
 						throw new Error("unknown section: "+section);
 					}
@@ -114,6 +114,25 @@ public class STPReader {
 		}
 	}
 
+	private void readPreSolve(LineNumberReader in) throws IOException{
+		String line; 
+		boolean reading =true;
+		while((line=in.readLine())!= null) {
+			String[] tokens = line.split("\\s+");
+			String command = tokens[0].toLowerCase();
+			switch(command) {
+			case "fixed":
+				g.preSolve.fixed = 	Integer.parseInt(tokens[1]);
+				break;
+			case "end":
+				reading = false;
+				break;
+			default:
+				//unimplemented command
+			}
+			
+		}
+	}
 	private void readGraph(LineNumberReader in) throws IOException{
 
 		String line;

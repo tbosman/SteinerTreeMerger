@@ -4,46 +4,79 @@ import grph.Grph;
 import grph.gui.GraphstreamBasedRenderer;
 import grph.properties.NumericalProperty;
 
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import libtw.input.GraphInput.InputData;
 import libtw.input.InputException;
 import libtw.ngraph.NGraph;
 import steiner.StpReader;
+import steinermerger.BossaSolver;
 import steinermerger.adapters.TWLibWrapperGrph;
+import steinermerger.algo.DPMergeSolutions;
 import steinermerger.algo.TreeDecomposition;
 import steinermerger.datastructures.SteinerGrph;
 import steinermerger.datastructures.WeightedGrph;
+import steinermerger.io.OptimalSolutionsReader;
 import steinermerger.io.STPReader;
 import steinermerger.util.GrphTools;
 import toools.set.IntSet;
 
-public class TestClass {
-	String dirName =  "C:\\Users\\tbosman\\Dropbox\\School\\Scriptie\\Code\\BenchMarks\\I320\\";
-	String instancePrefix = "I320-";
-	int instanceDigits = 3;
+public class BossaDPTestClass {
+	String benchmarkName = "LIN";
+	//String dirName =  "C:\\Users\\tbosman\\Dropbox\\School\\Scriptie\\Code\\BenchMarks\\"+benchmarkName+"\\";
+	String dirName = "src/main/resources/BenchMarks/"+benchmarkName+"/";
+	String optimalSolutionsDir = "src/main/resources/SteinLibOptimalSolutions/";
+
+	String instancePrefix = "lin";
+	int instanceDigits = 2;
 	String instanceNumber = "015";
 	String fileName = dirName+instancePrefix+instanceNumber+".stp";
+
+	String optName = optimalSolutionsDir+benchmarkName+".results";
+
+	Map<String, Integer> optimalSolutions;
+	
+	Random rng = new Random(1);
+	
+	
+	String currentInstance = "__"; 
+	
 	//	String fileName = "C:\\Users\\tbosman\\Dropbox\\School\\Scriptie\\Code\\BenchMarks\\E\\e17.stp";
-	TestClass() throws IOException{
+	BossaDPTestClass() throws IOException{
 
 
 
+	}
+
+	public void readOptimalSolutions() throws NumberFormatException, IOException {
+		optimalSolutions = new OptimalSolutionsReader().read(optName);
 	}
 
 	public String getFilename(int instanceNumber) {
 		String format = "%0"+instanceDigits+"d";
 		String instanceName = String.format(format, instanceNumber);
-		return dirName+instancePrefix+instanceName+".stp";
+		instanceName = getInstanceName(instanceNumber);
+		return dirName+instanceName+".stp";
+//		return dirName+instancePrefix+instanceName+".stp";
 
 	}
 
-
+	public String getInstanceName(int instanceNumber) {
+		String format = "%0"+instanceDigits+"d";
+		String instanceName = String.format(format, instanceNumber);
+		return instancePrefix+instanceName;
+	}
+	
 	public SteinerGrph constructSPH(SteinerGrph g, int root, int perturbationType, int iterationNumber) {
 		SteinerGrph gPerturbed = new SteinerGrph(g);
 		Random rng = new Random();
@@ -147,13 +180,14 @@ public class TestClass {
 		return sphUnion;
 	}
 
-	public int[] sphAlltoDP(ArrayList<SteinerGrph> sphList, SteinerGrph g, int maxTw) {
+	public int[] sphAlltoDP(ArrayList<SteinerGrph> sphList, SteinerGrph g, int maxTw, boolean sort) {
 
 		SteinerGrph sphUnion = sphList.get(0);
-
-		Collections.sort(sphList);
+		if(sort) {
+			Collections.sort(sphList);
+		}
 		int minSphLength = sphList.get(0).totalLength();
-		int numTrees = 1;
+		int numTrees = 0;
 
 		ArrayList<SteinerGrph> unusedList = new ArrayList<SteinerGrph>();
 
@@ -203,6 +237,7 @@ public class TestClass {
 			System.out.println("TW maxed out @ trees used: "+numTrees);
 		}
 
+		/**
 		System.out.println(sphUnion);
 		System.out.println("Trying to add partial solutions");
 		for(SteinerGrph sph : unusedList) {
@@ -210,14 +245,22 @@ public class TestClass {
 			sphUnion = addPartialSolution(sphUnion, sph, maxTw);
 
 		}
+		**/
+		
 		System.out.println(sphUnion);
 		System.out.println("pruning");
 		sphUnion.pruneSteinerLeafs();
 
 
 		System.out.println(sphUnion);
-		sphUnion = fillInTreeDecomposition(sphUnion, g);
-		System.out.println(sphUnion);
+		
+//		System.out.println("filling in");
+//		sphUnion = fillInTreeDecomposition(sphUnion, g);
+//		sphUnion.pruneSteinerLeafs();
+//		
+//		System.out.println(sphUnion);
+		
+		
 		System.out.println("Shortest sph length: "+minSphLength);
 
 
@@ -316,11 +359,11 @@ public class TestClass {
 	public List<TestResult> sphAllandTD(SteinerGrph g, boolean verbose, int maxIt) throws IOException {
 		ArrayList<SteinerGrph> sphList = new ArrayList<SteinerGrph>();
 		ArrayList<TestResult> allResults = new ArrayList<TestResult>();
-		
+
 		int solPerIt = 20;
-		
+
 		int accumulatedSphTime = 0;
-		
+
 		for(int i= 0; i<maxIt/solPerIt; i++) {
 			long startSPH = System.currentTimeMillis();
 
@@ -423,14 +466,14 @@ public class TestClass {
 
 			long timeSPH = System.currentTimeMillis() - startSPH;
 			accumulatedSphTime += timeSPH;
-			
-			
+
+
 			minSphLength = sphList.get(0).totalLength();
 			for(int tw=maxTw; tw<maxTw+3;tw++) {
 
 				int minTDLength = Integer.MAX_VALUE; 
 				long startTD = System.currentTimeMillis();
-				int[] tdSolution = sphAlltoDP(sphList, g, tw);
+				int[] tdSolution = sphAlltoDP(sphList, g, tw, true);
 				minTDLength = tdSolution[0];
 
 				long timeDP = System.currentTimeMillis() - startTD;
@@ -444,19 +487,19 @@ public class TestClass {
 				result.sphIterations = solPerIt*(i+1);
 				result.sphTime = accumulatedSphTime;
 				result.dpTime = (int)timeDP;
-				
-				
+
+
 				allResults.add(result);
 				/**TO REMOVE
 				int[] out = new int[5];
-				
+
 				out[0] = minSphLength;
 				out[1] = minTDLength;
 
 				out[2] = (int) timeSPH;
 				out[3] = (int) timeDP;
 				out[4] = tdSolution[1];
-				**/
+				 **/
 			}
 
 		}
@@ -532,41 +575,253 @@ public class TestClass {
 		System.out.println("#DBG Still connected? "+g.isConnected());
 	}
 
+	public ArrayList<SteinerGrph> generateBossaSolutions(String fileName, SteinerGrph g, int numSolutions, int numBossaIts, int optimalValue) throws IOException{
+
+		BossaSolver solver = new BossaSolver();
+		//@##########################
+		//solver.setCommand("-tm");
+		String[] constructions = {"t", "m", "k"};
+		
+		String[] searchMethods = {"x", "p","pn","x", "p", "x"};
+		
+		ArrayList<SteinerGrph> solutions = new ArrayList<SteinerGrph>();
+		List<Integer> hashCodes = new ArrayList<Integer>();
+		for(int i=1; i<= numSolutions; i++) {
+			solver.setSeed(i);
+			String localSearch = searchMethods[2];
+			//solver.setLocalSearch(localSearch);
+			String construction = constructions[rng.nextInt(3)];
+			//solver.setConstruction(construction);
+			//solver.setPerturbation("u");
+			solver.setRelink("a");
+			solver.verbose = false;
+			SteinerGrph newSolution = solver.solve(fileName, g, numBossaIts);
+			if(!hashCodes.contains(newSolution.getVertices().hashCode())) {
+				solutions.add(newSolution);
+				hashCodes.add(newSolution.getVertices().hashCode());
+				System.out.println("Solution "+i+" [ "+construction+" - "+localSearch+" ]: "+(newSolution.totalLength()+g.preSolve.fixed)+" | "+newSolution);
+				
+
+			}else {
+				System.out.println("Same solution generated again: "+(newSolution.totalLength()+g.preSolve.fixed));
+			}
+			
+			if(newSolution.totalLength()+g.preSolve.fixed <= optimalValue) {
+				System.out.println("Opt found!");
+				break;
+			}
+
+		}
+		return solutions;
+	}
+
+	public int sortSolutionList(ArrayList<SteinerGrph> solutionList, SteinerGrph g, int maxTw, int iterations) {
+		class RankSolution implements Comparable<RankSolution>{
+			public int value; 
+			public int numUsed;
+			public SteinerGrph solution; 
+			
+			RankSolution(SteinerGrph solution){
+				this.value = solution.totalLength();
+				this.solution = solution;
+				this.numUsed = 1;
+			}
+			
+			public double getRank() {
+				return ((double)value)/numUsed;
+			}
+			
+			public int compareTo(RankSolution other) {
+				return (int) Math.signum(this.getRank() - other.getRank());
+			}
+
+			
+		}
+		
+		//ArrayList<RankSolution> solutionRanks = new ArrayList<RankSolution>();
+		HashMap<SteinerGrph, RankSolution> rankMap = new HashMap<SteinerGrph, RankSolution>();
+		for(SteinerGrph stg : solutionList) {
+			rankMap.put(stg, new RankSolution(stg));
+			
+		}
+		int minSolutionValue = Integer.MAX_VALUE; 
+		for(int i=0; i<iterations;i++) {
+			Collections.shuffle(solutionList, rng);
+			ArrayList<SteinerGrph> currentSolutions = new ArrayList<SteinerGrph>();
+			SteinerGrph union = new SteinerGrph(); 
+			int tw = 0; 
+			
+			for(SteinerGrph sol : solutionList) {
+				SteinerGrph newUnion = new SteinerGrph(union);
+				newUnion.addSubgraph(sol);
+				
+				boolean twTractable = new TreeDecomposition().computeTreeWidthIsLEQ(new TWLibWrapperGrph(newUnion), maxTw-1);
+				if(twTractable) {
+					union = newUnion;
+					currentSolutions.add(sol);
+				}
+				
+			}
+			
+			if(currentSolutions.size() >= solutionList.size()) {
+				break; // union of all solutions is tractable
+			}
+			
+			int solutionValue = (int)new TreeDecomposition().computeTreeDP(new TWLibWrapperGrph(union), false);
+			for(SteinerGrph sol : currentSolutions) {
+				RankSolution rank = rankMap.get(sol);
+				rank.value += solutionValue;
+				rank.numUsed++;
+			}
+			
+			minSolutionValue = Math.min(minSolutionValue, solutionValue);
+			
+			
+		}
+		
+		RankSolution[] rankArray = rankMap.values().toArray(new RankSolution[solutionList.size()]);
+		
+		Arrays.sort(rankArray);
+		for(int i=0; i<solutionList.size(); i++) {
+			solutionList.set(i, rankArray[i].solution);
+			System.out.println(rankArray[i].solution+" l: "+rankArray[i].solution.totalLength());
+		}
+		
+		
+		System.out.println("min sol: "+minSolutionValue);
+		
+		return minSolutionValue;
+	}
+	
+
+	public List<TestResult> bossaToDP(String fileName, SteinerGrph g, int numIts, int numBossaIts, int optimalValue) throws IOException{
+		List<TestResult> allResults = new ArrayList<TestResult>();
+		System.out.println("Optimal Value for this instance: "+ optimalValue);
+
+		long start = System.currentTimeMillis();
+
+		ArrayList<SteinerGrph> solutionsList = generateBossaSolutions(fileName, g, numIts, numBossaIts, optimalValue);
+		int sphTime = (int)(System.currentTimeMillis() - start);
+
+		Collections.sort(solutionsList);
+		int minSphLength = solutionsList.get(0).totalLength();
+		if(minSphLength <= optimalValue) {
+			TestResult result = new TestResult(); 
+			result.sphSolution = minSphLength;
+			result.dpSolution = minSphLength;
+			result.maxTw = 1; 
+			result.treesUsed = 1;
+			result.sphIterations = numIts;
+			result.sphTime = sphTime;
+			result.dpTime = 0;
+			result.optimalSolution = optimalValue;
+			allResults.add(result);
+			return allResults;
+		}
+		
+		int maxTw = 10;
+		
+		
+
+		System.out.println("##Sorting solution list");
+		long start2 = System.currentTimeMillis();
+		sortSolutionList(solutionsList, g, 8, 10);
+		System.out.println("time: "+(System.currentTimeMillis()-start2));
+		
+		//### write union to file
+		DPMergeSolutions merger = new DPMergeSolutions(solutionsList, g);
+//		merger.pairWiseMerge();
+		merger.mergeAndWriteToFile("src/main/resources/unions/union_"+currentInstance+".stp");
+		
+		
+		
+		for(int tw = 10; tw<=maxTw; tw++) {
+			start = System.currentTimeMillis();
+			int[] tdSolution = sphAlltoDP(solutionsList, g, tw, false);
+			int dpTime = (int)(System.currentTimeMillis() - start2);
+
+			int minTDLength = tdSolution[0];
+
+			TestResult result = new TestResult(); 
+			result.sphSolution = minSphLength+g.preSolve.fixed;
+			result.dpSolution = minTDLength+g.preSolve.fixed;
+			result.maxTw = tw; 
+			result.treesUsed = tdSolution[1];
+			result.sphIterations = numIts;
+			result.sphTime = sphTime;
+			result.dpTime = dpTime;
+			result.optimalSolution = optimalValue;
+			allResults.add(result);
+		}
+		return allResults;
+	}
+	
+	int getOptimalSolution(String instanceName) {
+		if(!optimalSolutions.containsKey(instanceName)) {
+			return 0;
+		}
+		return optimalSolutions.get(instanceName);
+		
+	}
+
 	public void start() throws IOException {
 		//		fileName = dirName+"c01"+".stp";
-		int mb = 1024*1024;
-		System.out.println(Runtime.getRuntime().maxMemory()/mb);
-
-		int maxIt = 10; 
-		for(int m=16; m<20; m= m*2) {
-			maxIt = m*2;
+		try {
+		readOptimalSolutions();
+		}catch(FileNotFoundException e){
+			e.printStackTrace();
+			optimalSolutions = new HashMap<String, Integer>();
+		}
+		int maxIt = 1;
+		int numBossaIts = 128;
+		for(int m=1; m<2; m= m*2) {
+			maxIt = m*maxIt;
 			String results = "";
-			FileWriter writer = new FileWriter("C:\\Users\\tbosman\\git\\steiner\\steinertreemerger\\results\\"+""+instancePrefix+"_results_maxit"+maxIt+"_"+System.currentTimeMillis()+".txt");
-			for(int i=342; i<343;i++) {
+			//FileWriter writer = new FileWriter("C:\\Users\\tbosman\\git\\steiner\\steinertreemerger\\results\\"+"bossa_"+instancePrefix+"_results_maxit"+maxIt+"_"+System.currentTimeMillis()+".txt");
+			
+			int minInstance = 23; 
+			int maxInstance =38;
+			//Calendar cal = Calendar.getInstance().
+			FileWriter writer = new FileWriter("src/main/resources/results/"+"bossa_"+instancePrefix+"["+minInstance+"-"+maxInstance+"]"+"_results_maxit"+maxIt+"_"+System.currentTimeMillis()+".txt");
+			
+			for(int i=minInstance; i<maxInstance;i++) {
+				
+				currentInstance = getInstanceName(i);
+				
 				try {
 					long start = System.currentTimeMillis();
-					SteinerGrph g = readInstance(getFilename(i));
+					String fileName = getFilename(i);
+//					String[] bNames = {"bip52p", "bip52u", "bip62p", "bip62u"};
+//					fileName = dirName+"bip52.stp";
+//					fileName = dirName+"cc3-"+i+"u.stp";
+					//fileName = dirName+bNames[i]+".stp";
+					SteinerGrph g = readInstance(fileName);
+					
+					
 
-					//SteinerGrph g = readInstance(dirName+"bip52p.stp");
-
-					preProcess(g, true);
 					long stop = start-System.currentTimeMillis();
 					System.out.println("Time reading and preprocessing: "+stop);
 
 					start = System.currentTimeMillis();
 					//g.displayGraphstream_0_4_2();
 					//int[] solutions = sphAllandTD(g, false, maxIt);
-					List<TestResult> testResults = sphAllandTD(g, false, maxIt);
+					//List<TestResult> testResults = sphAllandTD(g, false, maxIt);
 					
+					
+					
+					
+					List<TestResult> testResults = bossaToDP(fileName, g, maxIt, numBossaIts, getOptimalSolution(getInstanceName(i).toLowerCase()));
+
+
 					long time = System.currentTimeMillis()-start; 
 
 					//String currentResult = "Instance: "+instancePrefix+"["+i+"] | Min SPH: "+solutions[0]+", DP: "+solutions[1]+", Time SPH+N-A: "+solutions[2]+", Time DP: "+solutions[3]+", Trees Used: "+solutions[4];
-				
+
 					String currentResult = "Instance: "+instancePrefix+"["+i+"] : \n";
 					for(TestResult result : testResults) {
 						currentResult = currentResult+result.toString()+"\n";
 					}
-					
+
 					results += currentResult+"\n";
 
 					writer.append(currentResult+"\n");
@@ -587,10 +842,10 @@ public class TestClass {
 			System.out.println(results);
 			writer.close();
 		}
-		
+
 	}
 
 	public static void main(String... args) throws IOException {
-		new TestClass().start(); 
+		new BossaDPTestClass().start(); 
 	}
 }

@@ -103,8 +103,11 @@ public class TreeDecomposition {
 		return bags;
 	}
 
-
 	public long computeTreeDP(TWLibWrapperGrph in) {
+		return computeTreeDP(in, true);
+	}
+	
+	public long computeTreeDP(TWLibWrapperGrph in, boolean verbose) {
 		NGraph<InputData> g;
 
 		g = in.get();
@@ -127,8 +130,10 @@ public class TreeDecomposition {
 		Set<NVertex<InputData>> terminals = in.getTerminals();
 		int t = terminals.size();
 
-		System.out.println("tw: " + (tw-1) + " |V|: " + v + " |E|: " + e + " |T|: " + t);
-
+		if(verbose) {
+			System.out.print("tw: " + (tw-1) + " |V|: " + v + " |E|: " + e + " |T|: " + t);
+		}
+			
 		NVertex<InputData> terminal = terminals.iterator().next();
 		HashMap<Set<NVertex<InputData>>, Integer> weights = in.getWeights();
 
@@ -148,8 +153,9 @@ public class TreeDecomposition {
 		long SPLIT_size = tddp.operations;
 
 
-		System.out.println("split - finished");
-		System.out.println("time: " + SPLIT_time + " size: " + SPLIT_size + " solution: " + tddp.solution);
+		if(verbose) {
+			System.out.println(" => time: " + SPLIT_time + " size: " + SPLIT_size + " solution: " + tddp.solution);
+		}
 		return tddp.solution;
 		//		
 		//		RowDP<InputData> row = new RowDP<InputData>();
