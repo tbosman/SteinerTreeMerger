@@ -83,6 +83,7 @@ public class GreedyDegree< D extends InputData > implements Permutation<D>, Uppe
 			int minDegree = graph.getNumberOfVertices();
 			NVertex<GreedyData> smallestVertex = null;
 			for( NVertex<GreedyData> v: graph ) {
+				
 				if( v.getNumberOfNeighbors() < minDegree){
 					minDegree = v.getNumberOfNeighbors();
 					smallestVertex = v;

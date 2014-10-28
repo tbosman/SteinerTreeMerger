@@ -18,7 +18,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
- 
+
 package libtw.algorithm;
 
 import libtw.input.GraphInput.InputData;
@@ -38,11 +38,11 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 	private NVertex[] original2copy;
 	private NGraph<NTDBag<D>> decomp;
 	private NVertexOrder<D> givenPermutation;
-	
+
 	class PermutedData
 	{
 		int permIndex;
-		NVertex<NTDBag<D>> bag;
+		NVertex<NTDBag<D>> bag =  new ListVertex<NTDBag<D>>(new NTDBag<D>());
 		NVertex<D> original;
 		public PermutedData(NVertex<D> old)
 		{
@@ -58,7 +58,7 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 			return d;
 		}
 	}
-	
+
 	/**
 	 * Create an instance of the PermutationToTreeDecomposition algorithm and
 	 * use a Permutation algorithm to get the permutation.
@@ -68,7 +68,7 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 	{
 		this.permAlg = permAlg;
 	}
-	
+
 	/**
 	 * Create an instance of the PermutationToTreeDecomposition algorithm and
 	 * use a given permutation.
@@ -78,7 +78,7 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 	{
 		this.givenPermutation = givenPermutation;
 	}
-	
+
 	public int getUpperBound()
 	{
 		return upperBound;
@@ -124,7 +124,7 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 		//upperBound = permWidth(permutation);
 		permDecomp(permutation,0);
 	}
-	
+
 	/**
 	 * Calculates the treewith and builds a tree decomposition of the input graph when using the given permutation.
 	 * 
@@ -135,9 +135,9 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 	@SuppressWarnings("unchecked")
 	private void permDecomp(NVertexOrder<D> permutation, int permIndex)
 	{
-		
-		
-		
+
+
+
 		int size = gcopy.getNumberOfVertices();
 		if (size == 0)
 		{
@@ -145,29 +145,94 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 		} else if (size == 1)
 		{
 			upperBound = 0;
-			NTDBag<D> bag = new NTDBag<D>();
-			bag.vertices.add( gcopy.getVertex(0).data.original );
-			decomp.addVertex(new ListVertex<NTDBag<D>>(bag));
+			gcopy.getVertex(0).data.bag.data.vertices.add(gcopy.getVertex(0).data.original);
+			decomp.addVertex(gcopy.getVertex(0).data.bag);
+
+			//			NTDBag<D> bag = new NTDBag<D>();
+			//			bag.vertices.add( gcopy.getVertex(0).data.original );
+			//			decomp.addVertex(new ListVertex<NTDBag<D>>(bag));
 		} else if (size == 2)
 		{
 			upperBound = 1;
-			NTDBag<D> bag = new NTDBag<D>();
+			NTDBag<D> bag;
+			NVertex<NTDBag<D>> decompVertex;
+			decompVertex = gcopy.getVertex(0).data.bag;
+			bag = decompVertex.data;
+
+
 			bag.vertices.add( gcopy.getVertex(0).data.original );
 			bag.vertices.add( gcopy.getVertex(1).data.original );
-			NVertex<NTDBag<D>> decompVertex = new ListVertex<NTDBag<D>>(bag);
 			decomp.addVertex(decompVertex);
+
+
+			decompVertex = gcopy.getVertex(1).data.bag;
+			bag = decompVertex.data;
+
+			bag.vertices.add( gcopy.getVertex(0).data.original );
+			bag.vertices.add( gcopy.getVertex(1).data.original );
+			decomp.addVertex(decompVertex);
+			
+			//last two vertices have two separate bags in de tree decomp, contract these to finish the tree
+			decomp.addEdge(gcopy.getVertex(0).data.bag, gcopy.getVertex(1).data.bag);
+			decomp.contractEdge(gcopy.getVertex(0).data.bag, gcopy.getVertex(1).data.bag);
+
 			gcopy.getVertex(0).data.bag = decompVertex;
 			gcopy.getVertex(1).data.bag = decompVertex;
+
 		} else
 		{
+			while(gcopy.getNumberOfVertices() > 2) {
+
+				NVertex<PermutedData> thisVertex = original2copy[permutation.order.get(permIndex).data.id];
+
+				gcopy.eliminate(thisVertex);
+				//go into recursion
+				//permDecomp(permutation, permIndex+1);
+				//create a bag and add it to the decomposition
+				int numNeighbors = thisVertex.getNumberOfNeighbors();
+				NTDBag<D> bag = new NTDBag<D>();
+				NVertex<NTDBag<D>> decompVertex = new ListVertex<NTDBag<D>>(bag);
+
+				decompVertex = thisVertex.data.bag;
+				bag = decompVertex.data;
+
+				int lowestIndex = Integer.MAX_VALUE;
+				NVertex<PermutedData> lowestNeighbor = null;
+				bag.vertices.add(thisVertex.data.original);
+				for (NVertex<PermutedData> other: thisVertex)
+				{
+					bag.vertices.add(other.data.original);
+					if (other.data.permIndex < lowestIndex)
+					{
+						lowestIndex = other.data.permIndex;
+						lowestNeighbor = other;
+					}
+				}
+				decomp.addVertex(decompVertex);
+				thisVertex.data.bag = decompVertex;
+				//create an edge between the bag and the neighborhoodbag
+				if(lowestNeighbor != null)
+					decomp.addEdge(decompVertex,lowestNeighbor.data.bag);
+				//calculate the upperbound
+				upperBound = Math.max(numNeighbors, upperBound);
+
+				permIndex++;
+			}
+			permDecomp(permutation, permIndex);
+			/**
 			NVertex<PermutedData> thisVertex = original2copy[permutation.order.get(permIndex).data.id];
-			
+
 			gcopy.eliminate(thisVertex);
 			//go into recursion
-			permDecomp(permutation, permIndex+1);
+			//permDecomp(permutation, permIndex+1);
 			//create a bag and add it to the decomposition
 			int numNeighbors = thisVertex.getNumberOfNeighbors();
 			NTDBag<D> bag = new NTDBag<D>();
+			NVertex<NTDBag<D>> decompVertex = new ListVertex<NTDBag<D>>(bag);
+
+			decompVertex = thisVertex.data.bag;
+			bag = decompVertex.data;
+
 			int lowestIndex = Integer.MAX_VALUE;
 			NVertex<PermutedData> lowestNeighbor = null;
 			bag.vertices.add(thisVertex.data.original);
@@ -180,7 +245,6 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 					lowestNeighbor = other;
 				}
 			}
-			NVertex<NTDBag<D>> decompVertex = new ListVertex<NTDBag<D>>(bag);
 			decomp.addVertex(decompVertex);
 			thisVertex.data.bag = decompVertex;
 			//create an edge between the bag and the neighborhoodbag
@@ -188,11 +252,13 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 				decomp.addEdge(decompVertex,lowestNeighbor.data.bag);
 			//calculate the upperbound
 			upperBound = Math.max(numNeighbors, upperBound);
-			
-			
+
+			permDecomp(permutation, permIndex+1);
+			 **/
+
 		}
 	}
-	
+
 	public NGraph<NTDBag<D>> getDecomposition()
 	{
 		return decomp;

@@ -1,25 +1,16 @@
 package steinermerger.test;
 
-import grph.Grph;
-import grph.gui.GraphstreamBasedRenderer;
-import grph.properties.NumericalProperty;
-
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import libtw.input.GraphInput.InputData;
-import libtw.input.InputException;
-import libtw.ngraph.NGraph;
-import steiner.StpReader;
 import steinermerger.BossaSolver;
 import steinermerger.adapters.TWLibWrapperGrph;
 import steinermerger.algo.DPMergeSolutions;
@@ -28,7 +19,6 @@ import steinermerger.datastructures.SteinerGrph;
 import steinermerger.datastructures.WeightedGrph;
 import steinermerger.io.OptimalSolutionsReader;
 import steinermerger.io.STPReader;
-import steinermerger.util.GrphTools;
 import toools.set.IntSet;
 
 public class BossaDPTestClass {
@@ -593,7 +583,7 @@ public class BossaDPTestClass {
 			String construction = constructions[rng.nextInt(3)];
 			//solver.setConstruction(construction);
 			//solver.setPerturbation("u");
-			solver.setRelink("a");
+			solver.setRelink("n");
 			solver.verbose = false;
 			SteinerGrph newSolution = solver.solve(fileName, g, numBossaIts);
 			if(!hashCodes.contains(newSolution.getVertices().hashCode())) {
@@ -631,6 +621,7 @@ public class BossaDPTestClass {
 				return ((double)value)/numUsed;
 			}
 			
+			@Override
 			public int compareTo(RankSolution other) {
 				return (int) Math.signum(this.getRank() - other.getRank());
 			}
@@ -772,15 +763,15 @@ public class BossaDPTestClass {
 			e.printStackTrace();
 			optimalSolutions = new HashMap<String, Integer>();
 		}
-		int maxIt = 1;
-		int numBossaIts = 128;
+		int maxIt = 16;
+		int numBossaIts = 8;
 		for(int m=1; m<2; m= m*2) {
 			maxIt = m*maxIt;
 			String results = "";
 			//FileWriter writer = new FileWriter("C:\\Users\\tbosman\\git\\steiner\\steinertreemerger\\results\\"+"bossa_"+instancePrefix+"_results_maxit"+maxIt+"_"+System.currentTimeMillis()+".txt");
 			
-			int minInstance = 23; 
-			int maxInstance =38;
+			int minInstance =10; 
+			int maxInstance =30;
 			//Calendar cal = Calendar.getInstance().
 			FileWriter writer = new FileWriter("src/main/resources/results/"+"bossa_"+instancePrefix+"["+minInstance+"-"+maxInstance+"]"+"_results_maxit"+maxIt+"_"+System.currentTimeMillis()+".txt");
 			
@@ -792,7 +783,9 @@ public class BossaDPTestClass {
 					long start = System.currentTimeMillis();
 					String fileName = getFilename(i);
 //					String[] bNames = {"bip52p", "bip52u", "bip62p", "bip62u"};
+//					fileName = dirName+bNames[i]+".stp";
 //					fileName = dirName+"bip52.stp";
+					
 //					fileName = dirName+"cc3-"+i+"u.stp";
 					//fileName = dirName+bNames[i]+".stp";
 					SteinerGrph g = readInstance(fileName);

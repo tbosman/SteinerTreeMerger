@@ -29,7 +29,7 @@ public class STPReader {
 
 	private String filename;
 	private SteinerGrph g;
-
+	private boolean arcMessage = true;
 	public STPReader(String fname) {
 		this.filename = fname; 
 	}
@@ -159,6 +159,21 @@ public class STPReader {
 				throw new Error("arcs are currently not supported");
 			} else if (command.equals("a")){
 				throw new Error("arcs are currently not supported");
+//				if(arcMessage) {
+//					System.err.println("Treating arcs as edges, weight of first arc in row is used.");
+//					arcMessage = false;
+//				}
+//				currentEdges++;
+//				int v1 = Integer.parseInt(tokens[1]);
+//				int v2 = Integer.parseInt(tokens[2]);
+//				int weight = Integer.parseInt(tokens[3]);
+//				g.addUndirectedSimpleEdge(currentEdges, v1, v2);
+//				g.setEdgeWeight(currentEdges, weight);
+//				
+//				if(tokens.length >= 5) {
+//					//double arc, have to correct number of edges
+//					edges--;
+//				}
 			}
 			else if (command.equals("end")){
 				reading = false;
