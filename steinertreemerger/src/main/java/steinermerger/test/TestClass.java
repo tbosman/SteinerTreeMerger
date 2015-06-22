@@ -1,9 +1,5 @@
 package steinermerger.test;
 
-import grph.Grph;
-import grph.gui.GraphstreamBasedRenderer;
-import grph.properties.NumericalProperty;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,16 +7,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import libtw.input.GraphInput.InputData;
-import libtw.input.InputException;
-import libtw.ngraph.NGraph;
-import steiner.StpReader;
 import steinermerger.adapters.TWLibWrapperGrph;
 import steinermerger.algo.TreeDecomposition;
 import steinermerger.datastructures.SteinerGrph;
 import steinermerger.datastructures.WeightedGrph;
 import steinermerger.io.STPReader;
-import steinermerger.util.GrphTools;
 import toools.set.IntSet;
 
 public class TestClass {

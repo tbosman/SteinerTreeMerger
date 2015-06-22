@@ -1,16 +1,10 @@
 package steinermerger.adapters;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 import libtw.input.GraphInput;
-import libtw.input.InputException;
-import libtw.input.GraphInput.InputData;
 import libtw.ngraph.ListGraph;
 import libtw.ngraph.ListVertex;
 import libtw.ngraph.NGraph;
@@ -39,6 +33,7 @@ public class TWLibWrapperGrph implements GraphInput{
 		edgeWeights.put(edge, weight);
 	}
 
+	@Override
 	public NGraph<InputData> get()  {
 
 		g = new ListGraph<InputData>();

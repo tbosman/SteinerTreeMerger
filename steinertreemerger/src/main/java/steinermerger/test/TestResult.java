@@ -18,6 +18,7 @@ public class TestResult {
 		// TODO Auto-generated constructor stub
 	}
 	
+	@Override
 	public String toString() {
 		return "Sols: "+sphIterations+", Min SPH: "+sphSolution+", DP: "+dpSolution+", Opt: "+optimalSolution+", Time SPH: "+sphTime+", DP: "+dpTime+", maxTW: "+maxTw+", trees used: "+treesUsed;
 	}

@@ -28,6 +28,7 @@ public class PruneSteinerLeafAlgorithm extends SteinerGrphAlgorithm<IntSet> {
 	 * @param g steiner grph
 	 * @return set of pruned vertices
 	 */
+	@Override
 	public IntSet compute(Grph g) {
 		IntSet pruned = new DefaultIntSet();
 		IntSet leafs = g.getVerticesOfDegree(1);

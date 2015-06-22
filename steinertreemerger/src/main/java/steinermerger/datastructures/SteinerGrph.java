@@ -6,7 +6,6 @@ import steinermerger.algo.ConstructSPHAlgorithm;
 import steinermerger.algo.ContractSteinerNodesOfDegree2Algorithm;
 import steinermerger.algo.InsertNodeImprovementAlgorithm;
 import steinermerger.algo.PruneSteinerLeafAlgorithm;
-import steinermerger.algo.SPHAlgorithm;
 import steinermerger.algo.SPReductionAlgorithm;
 import steinermerger.algo.SteinerGrphAlgorithm;
 import steinermerger.util.GrphTools;
@@ -43,6 +42,7 @@ public class SteinerGrph extends WeightedGrph {
 	 */
 	public SteinerGrph(Grph gIn) {
 		super(gIn);
+		
 	}
 
 
@@ -84,6 +84,7 @@ public class SteinerGrph extends WeightedGrph {
 		return sphAlgorithm.compute2(this, root);
 	}
 
+	@Override
 	public String toString() {
 		return super.toString()+", "+getTargetNodes().size()+" targets";
 	}
@@ -147,6 +148,13 @@ public class SteinerGrph extends WeightedGrph {
 		}
 		
 		return edges;
+	}
+	
+	
+	public SteinerGrph cloneSteinerGraph() {
+		SteinerGrph cln = new SteinerGrph(this);
+		GrphTools.copyProperties(this, cln);
+		return cln;
 	}
 	
 	

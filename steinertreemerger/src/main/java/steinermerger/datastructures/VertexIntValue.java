@@ -17,6 +17,7 @@ public class VertexIntValue implements Comparable<VertexIntValue> {
 	
 	
 	
+	@Override
 	public int compareTo(VertexIntValue v) {
 		return this.value - v.value;
 		
@@ -34,6 +35,7 @@ public class VertexIntValue implements Comparable<VertexIntValue> {
 		this.value = value;
 	}
 	
+	@Override
 	public String toString() {
 		return "V"+id+":"+value;
 	}

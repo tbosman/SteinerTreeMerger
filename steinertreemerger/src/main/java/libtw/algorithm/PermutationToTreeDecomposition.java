@@ -52,6 +52,7 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 
 	class Convertor implements NGraph.Convertor<D,PermutedData>
 	{
+		@Override
 		public PermutedData convert( NVertex<D> old )
 		{
 			PermutedData d = new PermutedData( old );
@@ -79,11 +80,13 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 		this.givenPermutation = givenPermutation;
 	}
 
+	@Override
 	public int getUpperBound()
 	{
 		return upperBound;
 	}
 
+	@Override
 	public String getName()
 	{
 		if( permAlg!=null )
@@ -92,6 +95,7 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 			return "Permutation To Tree Decomposition";
 	}
 
+	@Override
 	public void setInput(NGraph<D> g)
 	{
 		if( permAlg!=null ) permAlg.setInput(g);
@@ -103,6 +107,7 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 		}
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public void run()
 	{
@@ -116,7 +121,7 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 		int i = 0;
 		for (NVertex<D> v: permutation.order)
 		{
-			NVertex<PermutedData> vp = (NVertex<PermutedData>) original2copy[v.data.id];
+			NVertex<PermutedData> vp = original2copy[v.data.id];
 			vp.data.permIndex = i;
 			++i;
 		}
@@ -259,6 +264,7 @@ public class PermutationToTreeDecomposition<D extends InputData> implements Uppe
 		}
 	}
 
+	@Override
 	public NGraph<NTDBag<D>> getDecomposition()
 	{
 		return decomp;

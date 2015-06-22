@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
-import order.OrderDP;
 import steiner.*;
 import steinermerger.adapters.TWLibWrapperGrph;
 import toools.set.DefaultIntSet;

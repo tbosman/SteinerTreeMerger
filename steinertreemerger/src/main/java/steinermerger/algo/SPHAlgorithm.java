@@ -1,12 +1,8 @@
 package steinermerger.algo;
 
-import org.miv.util.Random;
-
 import steinermerger.datastructures.SteinerGrph;
-import steinermerger.util.GrphTools;
 import toools.set.IntSet;
 import grph.Grph;
-import grph.GrphAlgorithm;
 import grph.algo.search.SearchResult;
 
 /**
@@ -93,6 +89,7 @@ public class SPHAlgorithm extends SteinerGrphAlgorithm<SteinerGrph> {
 		}
 	}
 
+	@Override
 	public SteinerGrph compute(Grph g) {
 		return compute(g, g.getVertices().pickRandomElement(new java.util.Random()));
 	}

@@ -50,6 +50,7 @@ public class MaxTwGreedyDegree< D extends InputData > implements Permutation<D>,
 		}
 	}
 	class MyConvertor implements NGraph.Convertor<D,GreedyData> {
+		@Override
 		public GreedyData convert( NVertex<D> old ) {
 			GreedyData d = new GreedyData( old );
 			return d;
@@ -61,15 +62,18 @@ public class MaxTwGreedyDegree< D extends InputData > implements Permutation<D>,
 		upperBound = Integer.MAX_VALUE;
 	}
 	
+	@Override
 	public NVertexOrder<D> getPermutation() {
 		return permutation;
 	}
 
+	@Override
 	public String getName() {
 		return "GreedyDegree";
 	}
 
 	
+	@Override
 	public void setInput( NGraph<D> g ) {
 		graph = g.copy( new MyConvertor() );
 	}
@@ -77,6 +81,7 @@ public class MaxTwGreedyDegree< D extends InputData > implements Permutation<D>,
 	public void setMaxTw(int tw) {
 		this.maxTw = tw;
 	}
+	@Override
 	public void run() {
 		
 		upperBound = Integer.MIN_VALUE;
@@ -104,6 +109,7 @@ public class MaxTwGreedyDegree< D extends InputData > implements Permutation<D>,
 		}
 	}
 	
+	@Override
 	public int getUpperBound() {
 		return upperBound;
 	}

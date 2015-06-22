@@ -1,20 +1,9 @@
 package steinermerger.io;
 
-import grph.Grph;
-
-
-
-
-
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
 import steinermerger.datastructures.SteinerGrph;
 
 

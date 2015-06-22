@@ -1,8 +1,6 @@
 package steinermerger.adapters;
 
 import java.util.Iterator;
-import java.util.Set;
-
 import grph.Grph;
 import grph.in_memory.InMemoryGrph;
 import libtw.input.GraphInput.InputData;

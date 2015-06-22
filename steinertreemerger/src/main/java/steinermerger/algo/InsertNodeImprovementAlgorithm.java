@@ -7,7 +7,6 @@ import grph.properties.NumericalProperty;
 import steinermerger.datastructures.SteinerGrph;
 import steinermerger.datastructures.VertexSubGrph;
 import steinermerger.datastructures.WeightedGrph;
-import steinermerger.util.GrphTools;
 import toools.set.DefaultIntSet;
 import toools.set.IntSet;
 

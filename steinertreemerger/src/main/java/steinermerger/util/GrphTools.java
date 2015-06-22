@@ -1,7 +1,6 @@
 package steinermerger.util;
 
 import grph.Grph;
-import grph.properties.NumericalProperty;
 import grph.properties.Property;
 
 public class GrphTools {

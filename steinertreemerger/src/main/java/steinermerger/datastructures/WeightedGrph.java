@@ -1,9 +1,4 @@
 package steinermerger.datastructures;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import grph.Grph;
 import grph.GrphAlgorithm;
 import grph.algo.search.DijkstraAlgorithm;
@@ -14,7 +9,6 @@ import steinermerger.algo.*;
 import steinermerger.util.GrphTools;
 import toools.set.DefaultIntSet;
 import toools.set.IntSet;
-import toools.set.UnmodifiableIntSet;
 
 /**
  * In memory graph object supporting integer weighted edges			
@@ -23,7 +17,8 @@ import toools.set.UnmodifiableIntSet;
  */
 public class WeightedGrph extends InMemoryGrph implements Comparable<WeightedGrph>{
 	private NumericalProperty edgeWeight = new NumericalProperty("edge weights",32, 0 ); 
-
+	private NumericalProperty vertexXCoordinate = new NumericalProperty("XCoordinate", 32, 0);
+	private NumericalProperty vertexYCoordinate = new NumericalProperty("YCoordinate", 32, 0);
 
 	public transient final GrphAlgorithm<WeightedGrph> primAlgorithm = new PrimAlgorithm(edgeWeight);
 	public transient final GrphAlgorithm<WeightedGrph> kruskalAlgorithm = new KruskalAlgorithm(edgeWeight);
@@ -65,8 +60,11 @@ public class WeightedGrph extends InMemoryGrph implements Comparable<WeightedGrp
 	 */
 	public void setEdgeWeight(int e, int newWeight) {
 		assert getEdges().contains(e);
+		
+//		this.getEdgeWidthProperty().setValue(e, newWeight);
 		edgeWeight.setValue(e, newWeight);
-		getEdgeLabelProperty().setValue(e, "e"+e+":"+newWeight);
+		getEdgeLabelProperty().setValue(e, ""+newWeight);
+//		getEdgeLabelProperty().setValue(e, "e"+e+":"+newWeight);
 	}
 
 	public WeightedGrph computeMinimumSpanningTreePrim() {
@@ -92,6 +90,18 @@ public class WeightedGrph extends InMemoryGrph implements Comparable<WeightedGrp
 
 	public void setEdgeWeights(NumericalProperty weights) {
 		this.edgeWeight = weights;
+	}
+	
+	public void setVertexCoordinate(int v, int x, int y) {
+		vertexXCoordinate.setValue(v, x);
+		vertexYCoordinate.setValue(v, y);
+	}
+	
+	public int[] getCoordinates(int v) {
+		int[] coord = new int[2];
+		coord[0] = vertexXCoordinate.getValueAsInt(v);
+		coord[1] = vertexYCoordinate.getValueAsInt(v);
+		return coord;
 	}
 	
 	/**
@@ -159,6 +169,7 @@ public class WeightedGrph extends InMemoryGrph implements Comparable<WeightedGrp
 	 * @param otherGrph
 	 * @return
 	 */
+	@Override
 	public int compareTo(WeightedGrph otherGrph){
 		return this.totalLength() - otherGrph.totalLength(); 
 	}

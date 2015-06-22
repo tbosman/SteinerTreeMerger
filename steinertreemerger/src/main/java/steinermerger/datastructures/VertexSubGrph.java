@@ -1,53 +1,11 @@
 package steinermerger.datastructures;
 
-import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
-import javax.swing.JComponent;
-
-import org.miv.graphstream.ui.GraphViewerRemote;
-
-import com.carrotsearch.hppc.IntArrayList;
-
 import toools.NotYetImplementedException;
-import toools.collections.IntMap;
-import toools.io.file.Directory;
-import toools.io.file.RegularFile;
-import toools.math.Distribution;
-import toools.math.IntMatrix;
 import toools.set.DefaultIntSet;
 import toools.set.IntSet;
-import toools.set.IntSetFilter;
-import grph.Cache;
 import grph.Grph;
-import grph.GrphAlgorithm;
-import grph.TopologyListener;
-import grph.VertexPair;
-import grph.algo.AdjacencyMatrix;
-import grph.algo.MaxFlowAlgorithmResult;
-import grph.algo.clustering.Cluster;
-import grph.algo.distance.DistanceMatrix;
-import grph.algo.distance.PageRank;
-import grph.algo.partitionning.metis.Gpmetis.Ctype;
-import grph.algo.partitionning.metis.Gpmetis.Iptype;
-import grph.algo.partitionning.metis.Gpmetis.Objtype;
-import grph.algo.partitionning.metis.Gpmetis.Ptype;
-import grph.algo.search.BFSAlgorithm;
-import grph.algo.search.SearchResult;
-import grph.gui.GraphstreamBasedRenderer;
-import grph.in_memory.InMemoryGrph;
-import grph.io.GraphvizImageWriter.COMMAND;
-import grph.io.GraphvizImageWriter.OUTPUT_FORMAT;
-import grph.path.ArrayListPath;
-import grph.path.Path;
-import grph.path.SearchResultWrappedPath;
-import grph.properties.NumericalProperty;
 import grph.properties.Property;
-import grph.stepper.AbstractStepper;
-import grph.util.Matching;
 
 /**
  * abstraction class to handle a vertexset induced subgraph of a grph object without copying it 
@@ -63,33 +21,43 @@ public class VertexSubGrph extends Grph {
 		this.g = g;
 		this.vertices = vertices; 
 	}
+	@Override
 	public DIRECTION getNavigation() {
 		return g.getNavigation();
 	}
+	@Override
 	public IntSet getVertices() {
 		return vertices;
 	}
+	@Override
 	public int getNextVertexAvailable() {
 		throw new NotYetImplementedException();
 	}
+	@Override
 	public void removeVertex(int v) {
 		vertices.remove(v);;
 	}
+	@Override
 	public void addVertex(int v) {
 		vertices.add(v);
 	}
+	@Override
 	public boolean containsVertex(int v) {
 		return vertices.contains(v);
 	}
+	@Override
 	public IntSet getOutOnlyElements(int v) {
 		return g.getOutOnlyElements(v);
 	}
+	@Override
 	public IntSet getInOnlyElements(int v) {
 		return g.getInOnlyElements(v);
 	}
+	@Override
 	public IntSet getInOutOnlyElements(int v) {
 		return g.getInOutOnlyElements(v);
 	}
+	@Override
 	public boolean storeEdges() {
 		return g.storeEdges();
 	}
@@ -102,6 +70,7 @@ public class VertexSubGrph extends Grph {
 		}
 		return false;
 	}
+	@Override
 	public boolean containsEdge(int e) {
 		if( g.containsEdge(e)) {
 			return isSubGraphEdge(e);
@@ -109,9 +78,11 @@ public class VertexSubGrph extends Grph {
 		return false;
 			
 	}
+	@Override
 	public int getNextEdgeAvailable() {
 		return g.getNextEdgeAvailable();
 	}
+	@Override
 	public IntSet getEdges() {
 		IntSet edges = g.getEdges();
 		IntSet subEdges = new DefaultIntSet();
@@ -123,17 +94,20 @@ public class VertexSubGrph extends Grph {
 		return subEdges;
 
 	}
+	@Override
 	public int getOneVertex(int e) {
 		int v = g.getOneVertex(e);
 		assert vertices.contains(v);
 		return v;
 	}
+	@Override
 	public int getTheOtherVertex(int e, int v) {
 		int w =  g.getTheOtherVertex(e, v);
 		assert vertices.contains(w);
 		return w;
 	}
 	
+	@Override
 	public boolean isConnected() {
 		IntSet component = new DefaultIntSet(); 
 		int root = vertices.getGreatest();
@@ -165,9 +139,11 @@ public class VertexSubGrph extends Grph {
 	}
 	
 	
+	@Override
 	public int hashCode() {
 		return g.hashCode();
 	}
+	@Override
 	public Collection<Property> getProperties() {
 		return g.getProperties();
 	}
@@ -286,6 +262,7 @@ public class VertexSubGrph extends Grph {
 	}
 	
 	
+	@Override
 	public String toString() {
 		return vertices.size()+" vertices, "+getEdges().size()+" edges";
 	}

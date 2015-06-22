@@ -4,7 +4,6 @@ import steinermerger.datastructures.WeightedGrph;
 import toools.set.IntSet;
 import grph.Grph;
 import grph.GrphAlgorithm;
-import grph.in_memory.InMemoryGrph;
 import grph.properties.NumericalProperty;
 
 public class PrimAlgorithm extends GrphAlgorithm<WeightedGrph>{

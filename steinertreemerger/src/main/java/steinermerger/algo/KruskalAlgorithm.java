@@ -2,12 +2,7 @@ package steinermerger.algo;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import steinermerger.datastructures.VertexIntValue;
 import steinermerger.datastructures.WeightedGrph;
 import steinermerger.util.GrphTools;
@@ -15,7 +10,6 @@ import toools.set.DefaultIntSet;
 import toools.set.IntSet;
 import grph.Grph;
 import grph.GrphAlgorithm;
-import grph.in_memory.InMemoryGrph;
 import grph.properties.NumericalProperty;
 
 public class KruskalAlgorithm extends GrphAlgorithm<WeightedGrph>{
